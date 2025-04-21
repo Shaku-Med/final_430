@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const exampleRoutes = require('./routes/example');
+const authRoutes = require('./routes/auth');
+const UploadRoutes = require('./routes/upload');
 
 const app = express();
 
@@ -12,12 +13,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api', exampleRoutes);
 
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the backend API' });
-});
+//auth route
+app.use('/api',authRoutes);
+//upload route
+app.use('/api',UploadRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
