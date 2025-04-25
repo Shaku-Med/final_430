@@ -30,7 +30,7 @@ app.use((err, req, res, next) => {
 });
 
 app.get(`/testing/med`, (req, res) => {
-res.send(`Hello It's working...`)
+res.send(`Hello It's working...`);
 })
 
 // Start server
