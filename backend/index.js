@@ -4,6 +4,8 @@ require('dotenv').config();
 
 const authRoutes = require('./src/routes/auth');
 const UploadRoutes = require('./src/routes/upload');
+const example = require('./src/routes/example');
+
 
 const app = express();
 
@@ -13,7 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-
+//test  route
+app.use('/api',example)
 //auth route
 app.use('/api',authRoutes);
 //upload route
