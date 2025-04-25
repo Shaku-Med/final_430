@@ -29,7 +29,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.get(`/testing/med`, (req, res) => {
+app.get(`/api/testing/med`, (req, res) => {
 res.send(`Hello It's working...`);
 })
 
