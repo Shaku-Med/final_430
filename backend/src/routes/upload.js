@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const supabase = require('../config/supabase');
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post('/upload-profile-picture', upload.single('profilePicture'), async (req, res) => {
+router.post('/upload-profile-picture', upload.single('profilePicture'), async (req, res) => {
     const user = supabase.auth.user(); // Get the currently authenticated user
 
     if (!user) {
