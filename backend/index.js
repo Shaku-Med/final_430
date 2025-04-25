@@ -28,7 +28,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
-
+//test  route
 app.get(`/api/testing/med`, (req, res) => {
 res.send(`Hello It's working...`);
 })
