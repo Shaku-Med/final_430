@@ -2,9 +2,9 @@
     "version": 2,
     "name": "Spotlight Csi",
     "builds": [
-        { "src": "backend/src/server.js", "use": "@vercel/node" }
+        { "src": "backend/index.js", "use": "@vercel/node" }
     ],
     "routes": [
-        { "src": "/api/(.*)", "dest": "backend/src/server.js" }
+        { "src": "/(.*)", "dest": "/backend/index.js" }
     ]
 }
