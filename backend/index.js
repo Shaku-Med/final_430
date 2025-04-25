@@ -28,6 +28,10 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
+//test  route
+app.use(`/test/med`, (req, res) => {
+res.send(`Hello It's working...`);
+})
 
 // Start server
 const PORT = process.env.PORT || 5000;
