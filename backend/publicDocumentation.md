@@ -6,10 +6,10 @@ Welcome to the public reference for our RESTful API. This document gives an over
 ## Base URL
 
 ```
-https://<your-domain>.com/api
+[Api Url](https://final-430-anons-projects-71771934.vercel.app/api)
 ```
 
-> Replace `<your-domain>` with your deployed backend URL.
+
 
 ---
 ## Authentication
