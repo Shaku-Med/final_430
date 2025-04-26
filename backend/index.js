@@ -5,6 +5,10 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/auth');
 const UploadRoutes = require('./src/routes/upload');
 const example = require('./src/routes/example');
+const tokenRoutes = require('./src/routes/token');
+const profileRoutes = require('./src/routes/profile');
+const projectRoutes = require('./src/routes/project');
+
 
 
 const app = express();
@@ -21,6 +25,12 @@ app.use('/api',example)
 app.use('/api',authRoutes);
 //upload route
 app.use('/api',UploadRoutes);
+//token route
+app.use('/api',tokenRoutes);
+//profile route
+app.use('/api',profileRoutes);
+//project route
+app.use('/api',projectRoutes);
 
 
 // Error handling middleware

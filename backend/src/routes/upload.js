@@ -1,55 +1,83 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const supabase = require('../config/supabase');
+const { v4: uuidv4 } = require('uuid');
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-router.post('/upload-profile-picture', upload.single('profilePicture'), async (req, res) => {
-    const user = supabase.auth.user(); // Get the currently authenticated user
-
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' });
+// Middleware to check authentication
+const authenticateUser = async (req, res, next) => {
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+            return res.status(401).json({ error: 'Unauthorized - Please log in' });
+        }
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(500).json({ error: 'Authentication error' });
     }
+};
 
-    // Get the file from the request
-    const file = req.file;
-    const fileName = `${user.id}/profile-picture.png`; // Use user ID to create a unique file name
+// Upload profile picture
+router.post('/profile-picture', authenticateUser, async (req, res) => {
+    try {
+        const { fileData, fileName, fileType } = req.body;
 
-    // Upload the file to Supabase Storage
-    const { data, error: uploadError } = await supabase.storage
-        .from('profile-pictures')
-        .upload(fileName, file.buffer, {
-            contentType: file.mimetype,
-            upsert: true, // Overwrite if the file already exists
+        if (!fileData || !fileName || !fileType) {
+            return res.status(400).json({ error: 'Missing required file data' });
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(fileType)) {
+            return res.status(400).json({ error: 'Invalid file type. Only JPEG, PNG, and GIF are allowed' });
+        }
+
+        // Convert base64 to buffer
+        const buffer = Buffer.from(fileData.split(',')[1], 'base64');
+        
+        // Generate unique filename
+        const fileExtension = fileName.split('.').pop();
+        const uniqueFileName = `${req.user.id}/${uuidv4()}.${fileExtension}`;
+        const bucket = 'profile-pictures';
+
+        // Upload to Supabase Storage
+        const { data, error: uploadError } = await supabase.storage
+            .from(bucket)
+            .upload(uniqueFileName, buffer, {
+                contentType: fileType,
+                upsert: true,
+                cacheControl: '3600'
+            });
+
+        if (uploadError) {
+            console.error('Upload error:', uploadError);
+            return res.status(500).json({ error: 'Failed to upload file' });
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(uniqueFileName);
+
+        // Update user's profile with new avatar URL
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: publicUrl })
+            .eq('id', req.user.id);
+
+        if (updateError) {
+            console.error('Profile update error:', updateError);
+            return res.status(500).json({ error: 'Failed to update profile' });
+        }
+
+        res.json({
+            message: 'Profile picture uploaded successfully',
+            url: publicUrl
         });
-
-    if (uploadError) {
-        return res.status(400).json({ error: uploadError.message });
+    } catch (error) {
+        console.error('Error in profile picture upload:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-
-    // Get the public URL of the uploaded image
-    const { publicURL, error: urlError } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(fileName);
-
-    if (urlError) {
-        return res.status(400).json({ error: urlError.message });
-    }
-
-    // Update the user's profile with the new profile picture URL
-    const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicURL }) // Assuming 'avatar_url' is the column for the profile picture
-        .eq('id', user.id);
-
-    if (profileError) {
-        return res.status(400).json({ error: profileError.message });
-    }
-
-    // Respond with success
-    res.status(200).json({ message: 'Profile picture uploaded successfully!', url: publicURL });
 });
 
-module.exports = router; 
+module.exports = router;
