@@ -1,0 +1,619 @@
+{
+  "info": {
+    "name": "Full API Tester",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/signup",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "signup"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"user@example.com\", \"password\": \"Password1\"}"
+        }
+      }
+    },
+    {
+      "name": "Verify Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/verify-code",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "verify-code"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"user@example.com\", \"code\": \"abcdef\"}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"user@example.com\", \"password\": \"Password1\"}"
+        }
+      }
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/refresh-token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "refresh-token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Generate Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/generate-token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "generate-token"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"userData\": {\"user_id\": \"<user_id>\"}}"
+        }
+      }
+    },
+    {
+      "name": "List Profiles",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/profiles?limit=10&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profiles"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/profiles/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profiles",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/profiles/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profiles",
+            ":id"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"newname\", \"full_name\": \"New Name\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete Profile",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/profiles/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profiles",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Projects",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/projects?limit=10&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Project",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/projects/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Project",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/projects",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"New Project\", \"description\": \"Desc\", \"startDate\": \"2025-05-01\", \"endDate\": \"2025-06-01\", \"status\": \"planning\"}"
+        }
+      }
+    },
+    {
+      "name": "Update Project",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/projects/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"status\": \"in-progress\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete Project",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/projects/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Project Members",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/projects/:id/members",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id",
+            "members"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Project Member",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/projects/:id/members",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id",
+            "members"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"userId\": \"<user_id>\", \"role\": \"developer\"}"
+        }
+      }
+    },
+    {
+      "name": "Remove Project Member",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/projects/:id/members/:userId",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "projects",
+            ":id",
+            "members",
+            ":userId"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Upload Profile Picture",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/profile-picture",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profile-picture"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"fileData\": \"data:image/png;base64,<data>\", \"fileName\": \"avatar.png\", \"fileType\": \"image/png\"}"
+        }
+      }
+    },
+    {
+      "name": "List Events",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/events?limit=10&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Event",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/events/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/events",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Launch Party\", \"description\": \"Celebrate\", \"date\": \"2025-06-01T18:00:00Z\", \"location\": \"NYC\"}"
+        }
+      }
+    },
+    {
+      "name": "Update Event",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/events/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"description\": \"Updated desc\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete Event",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/events/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Comments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/events/:id/comments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id",
+            "comments"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/events/:id/comments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"content\": \"Nice!\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete Comment",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/events/:id/comments/:commentId",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "events",
+            ":id",
+            "comments",
+            ":commentId"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Notifications",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/notifications?limit=10&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "notifications"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Mark Notification Read",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{base_url}}/notifications/:id/read",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "notifications",
+            ":id",
+            "read"
+          ]
+        }
+      }
+    }
+  ]
+}

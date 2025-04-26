@@ -1,50 +1,36 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 require('dotenv').config();
-
+const { generalLimiter } = require('./src/config/authMiddleWare');
 const authRoutes = require('./src/routes/auth');
-const UploadRoutes = require('./src/routes/upload');
-const example = require('./src/routes/example');
+const uploadRoutes = require('./src/routes/upload');
 const tokenRoutes = require('./src/routes/token');
 const profileRoutes = require('./src/routes/profile');
 const projectRoutes = require('./src/routes/project');
-
-
+const notificationRoutes = require('./src/routes/notifications');
+const eventRoutes = require('./src/routes/event');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Security & parsing
+app.use(helmet());
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(generalLimiter);
 
-// Routes
-//test  route
-app.use('/api',example)
-//auth route
-app.use('/api',authRoutes);
-//upload route
-app.use('/api',UploadRoutes);
-//token route
-app.use('/api',tokenRoutes);
-//profile route
-app.use('/api',profileRoutes);
-//project route
-app.use('/api',projectRoutes);
+// Mount routes
+app.use('/api', authRoutes, uploadRoutes, tokenRoutes, profileRoutes, projectRoutes, notificationRoutes, eventRoutes);
 
-
-// Error handling middleware
+// Central error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error(err);
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(status).json({ error: message });
 });
-//test  route
-app.use(`/test/med`, (req, res) => {
-res.send(`Hello It's working...`);
-})
 
-// Start server
+// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
