@@ -4,20 +4,10 @@ const supabase = require('../config/supabase');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
+const { authenticateUser } = require('../config/authMiddleWare');
 
-// Middleware to check authentication
-const authenticateUser = async (req, res, next) => {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) {
-            return res.status(401).json({ error: 'Unauthorized - Please log in' });
-        }
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(500).json({ error: 'Authentication error' });
-    }
-};
+
+
 
 // POST /projects - Create new project
 router.post('/', authenticateUser, async (req, res) => {

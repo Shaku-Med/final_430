@@ -2,20 +2,8 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const { v4: uuidv4 } = require('uuid');
+const { authenticateUser } = require('../config/authMiddleWare');
 
-// Middleware to check authentication
-const authenticateUser = async (req, res, next) => {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) {
-            return res.status(401).json({ error: 'Unauthorized - Please log in' });
-        }
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(500).json({ error: 'Authentication error' });
-    }
-};
 
 // Upload profile picture
 router.post('/profile-picture', authenticateUser, async (req, res) => {
