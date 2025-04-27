@@ -3,9 +3,10 @@ const router = express.Router();
 const wrapAsync = require('../utils/asyncWrapper');
 const { authenticateUser } = require('../config/authMiddleWare');
 const { validate } = require('../utils/validateSchema');
-const { updateProfileSchema } = require('../validators/profileValidator');
+const { updateProfileSchema } = require('../validator/profileValidator');
 const { listProfiles, getProfile, updateProfile, deleteProfile } = require('../services/profileService');
 const { generalLimiter } = require('../config/authMiddleWare');
+
 
 router.get('/', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;

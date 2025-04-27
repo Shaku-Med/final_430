@@ -21,7 +21,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(generalLimiter);
 
 // Mount routes
-app.use('/api', authRoutes, uploadRoutes, tokenRoutes, profileRoutes, projectRoutes, notificationRoutes, eventRoutes);
+
+app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/token', tokenRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/project', projectRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/events', eventRoutes);
 
 // Central error handler
 app.use((err, req, res, next) => {

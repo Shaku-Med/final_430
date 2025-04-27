@@ -8,3 +8,6 @@ router.post('/profile-picture', authenticateUser, wrapAsync(async (req, res) => 
   const url = await uploadProfilePicture(req.user.id, req.body);
   res.json({ message: 'Profile picture uploaded successfully', url });
 }));
+
+
+module.exports = router;

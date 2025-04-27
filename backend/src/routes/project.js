@@ -3,7 +3,7 @@ const router = express.Router();
 const wrapAsync = require('../utils/asyncWrapper');
 const { authenticateUser } = require('../config/authMiddleWare');
 const { validate } = require('../utils/validateSchema');
-const { createProjectSchema, updateProjectSchema } = require('../validators/projectValidator');
+const { createProjectSchema, updateProjectSchema } = require('../validator/projectValidator');
 const projectService = require('../services/projectService');
 const { generalLimiter } = require('../config/authMiddleWare');
 
