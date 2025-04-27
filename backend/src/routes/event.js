@@ -13,7 +13,7 @@ const notificationService = require('../services/notificationService');
 router.post('/events', authenticateUser, generalLimiter, validate(eventSchema), wrapAsync(async (req, res) => {
   const ev = await eventService.createEvent(req.user.id, req.body);
   // Notify admins about new event
-  // (example: send email to all admins)
+  // (demo: send email to all admins)
   const admins = await supabase.from('profiles').select('id').eq('is_admin', true);
   for (let a of admins.data) {
     await notificationService.createNotification(a.id, 'event', ev.id.toString(), `New event "${ev.title}" created`, true);
