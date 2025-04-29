@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cookies, headers } from "next/headers";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +27,13 @@ export default async function RootLayout({
   let h = await headers()
   let c = await cookies()
   // 
-
+  let theme: any = `system`
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} system antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${theme} antialiased`}
       >
+        <Toaster closeButton duration={20000} richColors position={`bottom-center`} theme={theme}/>
         {children}
       </body>
     </html>

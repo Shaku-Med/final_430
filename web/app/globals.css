@@ -12,9 +12,9 @@
 /* Light theme variables (default) */
 :root,
 .light {
-  --radius: 0.5rem;
+  --radius: 1rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+--foreground: oklch(0.481 0.045 256.6);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
@@ -126,9 +126,9 @@
 /* Apply light theme variables when system preference is light and .system class is active */
 @media (prefers-color-scheme: light) {
   .system {
-    --radius: 0.5rem;
+    --radius: 1rem;
     --background: oklch(1 0 0);
-    --foreground: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.481 0.045 256.6);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.141 0.005 285.823);
     --popover: oklch(1 0 0);
@@ -349,7 +349,7 @@ img {
 }
 
 
-@supports (scrollbar-color: system) {
+@supports (scrollbar-color: auto) {
   * {
       scrollbar-color: var(--muted) var(--background);
       scrollbar-width: thin;
@@ -358,6 +358,10 @@ img {
   /* *:not(.empt_ys):hover {
       scrollbar-width: thin;
   } */
+   html,body {
+    scrollbar-color: var(--muted) var(--background);
+      scrollbar-width: thin;
+   }
 }
 
 @supports selector(::-webkit-scrollbar) {
@@ -649,4 +653,48 @@ img {
 .allow_t {
   user-select: text !important;
   -webkit-user-select: text !important;
+}
+
+
+/* BAR */
+
+.loader {
+  --size-loader: 150px;
+  --size-orbe: 10px;
+  width: var(--size-loader);
+  height: var(--size-loader);
+  position: relative;
+  transform: rotate(45deg);
+}
+
+.orbe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  --delay: calc(var(--index) * 0.1s);
+  animation: orbit7456 ease-in-out 1.5s var(--delay) infinite;
+  opacity: calc(10 - calc(0.1 * var(--index)));
+}
+
+.orbe::after {
+  position: absolute;
+  content: '';
+  top: 0;
+  left: 0;
+  width: var(--size-orbe);
+  height: var(--size-orbe);
+  background-color: var(--foreground);
+  box-shadow: 0px 0px 10px 1px var(--foreground);
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+}
+
+@keyframes orbit7456 {
+  0% {}
+  80% {
+      transform: rotate(360deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
 }
