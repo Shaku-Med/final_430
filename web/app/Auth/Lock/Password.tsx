@@ -90,7 +90,7 @@ export const VerifyPassword = async (inputPassword: string, storedEncryptedPassw
         if(!decryptedPass2) return false;
         
         let bytes = CryptoJS.AES.decrypt(decryptedPass2, `${psmall}+${process.env.PASS2}`);
-        let decryptedObj = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        let decryptedObj = JSON.parse(bytes?.toString(CryptoJS.enc.Utf8));
         
         const storedHash = decryptedObj.password;
         
@@ -98,7 +98,7 @@ export const VerifyPassword = async (inputPassword: string, storedEncryptedPassw
         return isMatch;
     }
     catch(error) {
-        console.error("Password verification error:", error);
+        // console.error("Password verification error:", error);
         return false;
     }
 }
