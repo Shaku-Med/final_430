@@ -149,6 +149,8 @@ class EntityRecommender:
         return similar_entities[:max_suggestions]
         
     def save_user_recommendations(self, user_id, recommendations, entity_type):
+        self.database.table('suggestions').delete().eq('user_id', user_id).eq('entity_type', entity_type).execute()
+        
         for entity_id, score in recommendations:
             self.database.table('suggestions').insert({
                 'id': str(uuid.uuid4()),
@@ -160,6 +162,8 @@ class EntityRecommender:
             }).execute()
             
     def save_similar_entities(self, entity_id, similar_entities, entity_type):
+        self.database.table('suggestions').delete().eq('user_id', 'system').eq('entity_type', f'related_{entity_type[:-1]}').execute()
+        
         for similar_id, score in similar_entities:
             self.database.table('suggestions').insert({
                 'id': str(uuid.uuid4()),
@@ -168,4 +172,25 @@ class EntityRecommender:
                 'entity_type': f'related_{entity_type[:-1]}',
                 'score': score,
                 'expires_at': (datetime.now() + timedelta(days=7)).isoformat()
-            }).execute() 
+            }).execute()
+            
+    def generate_all_recommendations(self):
+        user_data = self.load_user_data()
+        
+        self.train_recommender(user_data['video_interactions'], 'videos')
+        self.train_recommender(user_data['event_participants'], 'events')
+        self.train_recommender(user_data['project_members'], 'projects')
+        
+        for user_id in self.user_to_index:
+            video_recommendations = self.get_user_recommendations(user_id, 'videos')
+            event_recommendations = self.get_user_recommendations(user_id, 'events')
+            project_recommendations = self.get_user_recommendations(user_id, 'projects')
+            
+            self.save_user_recommendations(user_id, video_recommendations, 'videos')
+            self.save_user_recommendations(user_id, event_recommendations, 'events')
+            self.save_user_recommendations(user_id, project_recommendations, 'projects')
+            
+        for entity_type in ['videos', 'events', 'projects']:
+            for entity_id in self.entity_to_index[entity_type]:
+                similar_entities = self.find_similar_entities_for(entity_id, entity_type)
+                self.save_similar_entities(entity_id, similar_entities, entity_type) 
