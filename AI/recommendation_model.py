@@ -120,7 +120,7 @@ class VideoRecommender:
         for similar_id, score in similar_videos:
             self.database.table('suggestions').insert({
                 'id': str(uuid.uuid4()),
-                'user_id': None,
+                'user_id': 'system',
                 'entity_id': similar_id,
                 'entity_type': 'related_video',
                 'score': score,
