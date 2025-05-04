@@ -105,8 +105,15 @@ class EntityRecommender:
         
         for round in range(training_rounds):
             for interaction in interactions:
+                if interaction['user_id'] not in self.user_to_index:
+                    continue
+                    
+                entity_id = interaction.get(f'{entity_type[:-1]}_id')
+                if not entity_id or entity_id not in self.entity_to_index[entity_type]:
+                    continue
+                    
                 user_position = torch.tensor([self.user_to_index[interaction['user_id']]])
-                entity_position = torch.tensor([self.entity_to_index[entity_type][interaction[f'{entity_type[:-1]}_id']]])
+                entity_position = torch.tensor([self.entity_to_index[entity_type][entity_id]])
                 user_preference = torch.tensor([[1.0]])
                 
                 optimizer.zero_grad()
