@@ -60,6 +60,8 @@ class EntityRecommender:
         }
         
     def load_entity_data(self, entity_type):
+        self.entity_to_index[entity_type] = {}
+        self.index_to_entity[entity_type] = {}
         entities = self.database.table(entity_type).select('*').execute()
         for position, entity in enumerate(entities.data):
             self.entity_to_index[entity_type][entity['id']] = position
@@ -68,6 +70,7 @@ class EntityRecommender:
         self.find_similar_entities(entities.data, entity_type)
         
     def find_similar_entities(self, entities, entity_type):
+        self.similar_entities[entity_type] = {}
         entity_texts = [f"{entity['title']} {entity['description']}" for entity in entities]
         text_analyzer = TfidfVectorizer()
         text_vectors = text_analyzer.fit_transform(entity_texts)
