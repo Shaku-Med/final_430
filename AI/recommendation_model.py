@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from datetime import datetime, timedelta
+import uuid
 
 class RecommendationModel(nn.Module):
     def __init__(self, num_users, num_items, embedding_dim=64):
@@ -84,6 +85,7 @@ class RecommenderSystem:
         
         for item_id, score in suggestions:
             self.client.table('suggestions').insert({
+                'id': str(uuid.uuid4()),
                 'user_id': user_id,
                 'entity_type': 'video',
                 'entity_id': item_id,

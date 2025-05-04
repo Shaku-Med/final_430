@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+import uuid
 
 class VisitorAnalytics:
     def __init__(self, supabase_client):
@@ -33,6 +34,7 @@ class VisitorAnalytics:
         
         for entity_id, count in stats.items():
             self.client.table('status').insert({
+                'id': str(uuid.uuid4()),
                 'entity_type': entity_type,
                 'entity_id': entity_id,
                 'visitor_count': count,
