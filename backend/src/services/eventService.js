@@ -1,5 +1,5 @@
 const supabase = require('../config/supabase');
-const { eventSchema } = require('../validators/eventValidator');
+const { eventSchema } = require('../validator/eventValidator');
 
 async function createEvent(userId, rawData) {
   // Admin check

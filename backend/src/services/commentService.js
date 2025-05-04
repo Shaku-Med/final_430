@@ -1,4 +1,4 @@
-const { commentSchema } = require('../validators/commentValidator');
+const { commentSchema } = require('../validator/commentValidator');
 const supabase = require('../config/supabase');
 
 async function addComment(eventId, userId, content) {
