@@ -43,6 +43,40 @@ router.delete('/events/:id', authenticateUser, generalLimiter, wrapAsync(async (
   res.json({ message: 'Event deleted', deleted });
 }));
 
+// Events Registeration handling
+router.post(
+  '/events/:id/register',
+  authenticateUser,
+  generalLimiter,
+  wrapAsync(async (req, res) => {
+    const registration = await eventService.registerForEvent(req.params.id, req.user.id);
+    res.status(201).json(registration);
+  })
+);
+
+// List registrations for an event (admin or event creator)
+router.get(
+  '/events/:id/registrations',
+  authenticateUser,
+  generalLimiter,
+  wrapAsync(async (req, res) => {
+    // optional: check req.user.is_admin or is creator
+    const list = await eventService.listEventRegistrations(req.params.id);
+    res.json(list);
+  })
+);
+
+// Unregister from an event
+router.delete(
+  '/events/:id/register',
+  authenticateUser,
+  generalLimiter,
+  wrapAsync(async (req, res) => {
+    await eventService.unregisterFromEvent(req.params.id, req.user.id);
+    res.json({ message: 'Unregistered successfully' });
+  })
+);
+
 // Comments
 router.post('/events/:id/comments', authenticateUser, generalLimiter, validate(commentSchema), wrapAsync(async (req, res) => {
   const comment = await commentService.addComment(req.params.id, req.user.id, req.body.content);

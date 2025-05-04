@@ -39,4 +39,31 @@ async function deleteEvent(userId, id) {
   return event;
 }
 
-module.exports = { createEvent, listEvents, getEventById, updateEvent, deleteEvent };
+async function registerForEvent(eventId, userId) {
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .insert([{ event_id: eventId, user_id: userId }])
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function listEventRegistrations(eventId) {
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .select('user_id,registered_at, profiles(id,username,full_name,avatar_url)')
+    .eq('event_id', eventId);
+  if (error) throw error;
+  return data;
+}
+
+async function unregisterFromEvent(eventId, userId) {
+  const { error } = await supabase
+    .from('event_registrations')
+    .delete()
+    .eq('event_id', eventId)
+    .eq('user_id', userId);
+  if (error) throw error;
+}
+
+module.exports = { createEvent, listEvents, getEventById, updateEvent, deleteEvent,registerForEvent,listEventRegistrations,unregisterFromEvent };

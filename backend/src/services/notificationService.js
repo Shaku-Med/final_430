@@ -27,4 +27,6 @@ async function markAsRead(notificationId) {
   if (error) throw error;
 }
 
+
+
 module.exports = { createNotification, listNotifications, markAsRead };
