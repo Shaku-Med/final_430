@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import uuid
+from datetime import timezone
 
 class VisitorAnalytics:
     def __init__(self, supabase_client):
         self.client = supabase_client
         
     def calculate_visitor_stats(self):
-        two_months_ago = datetime.now() - timedelta(days=60)
+        two_months_ago = datetime.now(timezone.utc) - timedelta(days=60)
         
         events = self.client.table('event_participants').select('*').execute()
         projects = self.client.table('project_members').select('*').execute()
