@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger-output.json');
 
 const {
   parseCookies,
@@ -11,13 +13,14 @@ const {
   generalLimiter
 } = require('./src/config/authMiddleWare');
 
-const authRoutes         = require('./src/routes/auth');
-const uploadRoutes       = require('./src/routes/upload');
-const tokenRoutes        = require('./src/routes/token');
-const profileRoutes      = require('./src/routes/profile');
-const projectRoutes      = require('./src/routes/project');
+const authRoutes = require('./src/routes/auth');
+const uploadRoutes = require('./src/routes/upload');
+const tokenRoutes = require('./src/routes/token');
+const profileRoutes = require('./src/routes/profile');
+const projectRoutes = require('./src/routes/project');
 const notificationRoutes = require('./src/routes/notifications');
-const eventRoutes        = require('./src/routes/event');
+const eventRoutes = require('./src/routes/event');
+const projectMember = require('./src/routes/projectMember');
 
 const app = express();
 
@@ -33,22 +36,26 @@ app.use(parseCookies);
 // Rate limit all routes
 app.use(generalLimiter);
 
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 // ───── Public (no-auth) routes ─────
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/token', tokenRoutes);  // generating tokens itself uses cookies auth
 
 // ───── Protected routes ─────
 // All of these will require a valid auth_token cookie
-app.use('/api/upload',       authenticateUser, uploadRoutes);
-app.use('/api/profile',      authenticateUser, profileRoutes);
-app.use('/api/project',      authenticateUser, projectRoutes);
-app.use('/api/notifications',authenticateUser, notificationRoutes);
-app.use('/api/events',       authenticateUser, eventRoutes);
+app.use('/api/upload', authenticateUser, uploadRoutes);
+app.use('/api/profile', authenticateUser, profileRoutes);
+app.use('/api/project', authenticateUser, projectRoutes);
+app.use('/api/notifications', authenticateUser, notificationRoutes);
+app.use('/api/events', authenticateUser, eventRoutes);
+app.use('/api/projectmember',authenticateUser,projectMember);
 
 // Central error handler
 app.use((err, req, res, next) => {
   console.error(err);
-  const status  = err.status  || 500;
+  const status = err.status || 500;
   const message = err.message || 'Internal Server Error';
   res.status(status).json({ error: message });
 });

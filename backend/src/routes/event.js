@@ -9,38 +9,60 @@ const eventService = require('../services/eventService');
 const commentService = require('../services/commentService');
 const notificationService = require('../services/notificationService');
 
-// Events
-router.post('/events', authenticateUser, generalLimiter, validate(eventSchema), wrapAsync(async (req, res) => {
-  const ev = await eventService.createEvent(req.user.id, req.body);
-  // Notify admins about new event
-  // (demo: send email to all admins)
-  const admins = await supabase.from('profiles').select('id').eq('is_admin', true);
-  for (let a of admins.data) {
-    await notificationService.createNotification(a.id, 'event', ev.id.toString(), `New event "${ev.title}" created`, true);
+// Get events with optional filters
+router.get('/', generalLimiter, wrapAsync(async (req, res) => {
+  try {
+    const { limit = 10, offset = 0, startDate, endDate } = req.query;
+    const result = await eventService.getEvents({
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      startDate,
+      endDate
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message });
   }
-  res.status(201).json(ev);
 }));
 
-router.get('/events', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = parseInt(req.query.offset) || 0;
-  const list = await eventService.listEvents({ limit, offset });
-  res.json({ data: list, limit, offset });
+// Get single event
+router.get('/:id', generalLimiter, wrapAsync(async (req, res) => {
+  try {
+    const event = await eventService.getEventById(parseInt(req.params.id));
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message });
+  }
 }));
 
-router.get('/events/:id', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
-  const ev = await eventService.getEventById(req.params.id);
-  res.json(ev);
+// Create event (requires authentication)
+router.post('/', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
+  try {
+    const event = await eventService.createEvent(req.user.user_id, req.body);
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message });
+  }
 }));
 
-router.put('/events/:id', authenticateUser, generalLimiter, validate(eventSchema), wrapAsync(async (req, res) => {
-  const updated = await eventService.updateEvent(req.user.id, req.params.id, req.body);
-  res.json(updated);
+// Update event (requires authentication)
+router.put('/:id', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
+  try {
+    const event = await eventService.updateEvent(req.user.user_id, parseInt(req.params.id), req.body);
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message });
+  }
 }));
 
-router.delete('/events/:id', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
-  const deleted = await eventService.deleteEvent(req.user.id, req.params.id);
-  res.json({ message: 'Event deleted', deleted });
+// Delete event (requires authentication)
+router.delete('/:id', authenticateUser, generalLimiter, wrapAsync(async (req, res) => {
+  try {
+    await eventService.deleteEvent(req.user.user_id, parseInt(req.params.id));
+    res.status(204).send();
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message });
+  }
 }));
 
 // Events Registeration handling

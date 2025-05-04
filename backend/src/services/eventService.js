@@ -1,107 +1,211 @@
 const supabase = require('../config/supabase');
 const { eventSchema } = require('../validator/eventValidator');
 
-async function createEvent(userId, rawData) {
-  // Admin check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', userId)
+// Event validation schema
+
+
+/**
+ * Create a new event
+ * @param {string} userId - The user's UUID
+ * @param {Object} eventData - Event data
+ * @returns {Promise<Object>} Created event
+ */
+async function createEvent(userId, eventData) {
+  // Validate input
+  const validatedData = eventSchema.parse(eventData);
+
+  // Check if user exists and is not suspended
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('id, isSuspended')
+    .eq('user_id', userId)
     .single();
 
-  if (!profile?.is_admin) {
-    throw Object.assign(new Error('Forbidden - Admins only'), { status: 403 });
+  if (userError) {
+    throw Object.assign(new Error('Failed to fetch user'), { status: 500 });
   }
 
-  // 1) Validate the rawData
-  const valid = eventSchema.parse(rawData);
+  if (!user) {
+    throw Object.assign(new Error('User not found'), { status: 404 });
+  }
 
-  //  Build insert payload
-  const payload = {
-    title:       valid.title,
-    description: valid.description,
-    date:        new Date(valid.date).toISOString(),
-    location:    valid.location || null,
-    created_by:  userId,
-    created_at:  new Date().toISOString()
-  };
+  if (user.isSuspended) {
+    throw Object.assign(new Error('User account is suspended'), { status: 403 });
+  }
 
-  //  Insert and return
-  const { data: event, error } = await supabase
+  // Create event
+  const { data: event, error: eventError } = await supabase
     .from('events')
-    .insert([payload])
+    .insert([{
+      title: validatedData.title,
+      description: validatedData.description,
+      date: new Date(validatedData.date).toISOString(),
+      location: validatedData.location,
+      created_by: userId,
+      created_at: new Date().toISOString()
+    }])
     .select()
     .single();
 
-  if (error) throw error;
+  if (eventError) {
+    throw Object.assign(new Error('Failed to create event'), { status: 500 });
+  }
+
   return event;
 }
 
-async function listEvents({ limit = 10, offset = 0 }) {
-  if (!Number.isInteger(limit) || !Number.isInteger(offset)) {
+/**
+ * Get events with pagination and optional filters
+ * @param {Object} options - Query options
+ * @param {number} options.limit - Number of events per page
+ * @param {number} options.offset - Offset for pagination
+ * @param {string} options.startDate - Filter events after this date
+ * @param {string} options.endDate - Filter events before this date
+ * @returns {Promise<Object>} List of events with pagination info
+ */
+async function getEvents({ limit = 10, offset = 0, startDate, endDate } = {}) {
+  if (!Number.isInteger(limit) || !Number.isInteger(offset) || limit < 1 || offset < 0) {
     throw Object.assign(new Error('Invalid pagination parameters'), { status: 400 });
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('events')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .select('*', { count: 'exact' })
+    .order('date', { ascending: true });
+
+  if (startDate) {
+    query = query.gte('date', new Date(startDate).toISOString());
+  }
+
+  if (endDate) {
+    query = query.lte('date', new Date(endDate).toISOString());
+  }
+
+  const { data: events, error, count } = await query
     .range(offset, offset + limit - 1);
 
-  if (error) throw error;
-  return data;
+  if (error) {
+    throw Object.assign(new Error('Failed to fetch events'), { status: 500 });
+  }
+
+  return {
+    events,
+    total: count,
+    limit,
+    offset
+  };
 }
 
-async function getEventById(id) {
-  const { data, error } = await supabase
+/**
+ * Get a single event by ID
+ * @param {number} eventId - Event ID
+ * @returns {Promise<Object>} Event details
+ */
+async function getEventById(eventId) {
+  const { data: event, error } = await supabase
     .from('events')
-    .select('*')
-    .eq('id', id)
+    .select(`
+      *,
+      users:created_by (
+        user_id,
+        firstname,
+        lastname,
+        email
+      )
+    `)
+    .eq('id', eventId)
     .single();
 
   if (error) {
-    throw Object.assign(new Error('Event not found'), { status: 404 });
+    if (error.code === 'PGRST116') {
+      throw Object.assign(new Error('Event not found'), { status: 404 });
+    }
+    throw Object.assign(new Error('Failed to fetch event'), { status: 500 });
   }
-  return data;
+
+  return event;
 }
 
-async function updateEvent(userId, id, rawUpdates) {
-  // 1) Fetch and permission-check
-  const event = await getEventById(id);
-  if (event.created_by !== userId) {
-    throw Object.assign(new Error('Forbidden - Not creator'), { status: 403 });
+/**
+ * Update an event
+ * @param {string} userId - The user's UUID
+ * @param {number} eventId - Event ID
+ * @param {Object} updates - Event updates
+ * @returns {Promise<Object>} Updated event
+ */
+async function updateEvent(userId, eventId, updates) {
+  // Validate input
+  const validatedData = eventSchema.partial().parse(updates);
+
+  // Check if user is the creator
+  const { data: event, error: eventError } = await supabase
+    .from('events')
+    .select('created_by')
+    .eq('id', eventId)
+    .single();
+
+  if (eventError) {
+    if (eventError.code === 'PGRST116') {
+      throw Object.assign(new Error('Event not found'), { status: 404 });
+    }
+    throw Object.assign(new Error('Failed to fetch event'), { status: 500 });
   }
 
-  // 2) Validate updates against same schema (or have a separate `updateEventSchema`)
-  const valid = eventSchema.partial().parse(rawUpdates);
+  if (event.created_by !== userId) {
+    throw Object.assign(new Error('Not authorized to update this event'), { status: 403 });
+  }
 
-  // 3) Build payload exactly
-  const payload = { ...valid, updated_at: new Date().toISOString() };
-
-  const { data: updated, error } = await supabase
+  // Update event
+  const { data: updatedEvent, error: updateError } = await supabase
     .from('events')
-    .update(payload)
-    .eq('id', id)
+    .update({
+      ...validatedData,
+      date: validatedData.date ? new Date(validatedData.date).toISOString() : undefined
+    })
+    .eq('id', eventId)
     .select()
     .single();
 
-  if (error) throw error;
-  return updated;
-}
-
-async function deleteEvent(userId, id) {
-  const event = await getEventById(id);
-  if (event.created_by !== userId) {
-    throw Object.assign(new Error('Forbidden - Not creator'), { status: 403 });
+  if (updateError) {
+    throw Object.assign(new Error('Failed to update event'), { status: 500 });
   }
 
-  // clean up comments first
-  await supabase.from('event_comments').delete().eq('event_id', id);
+  return updatedEvent;
+}
 
-  // then delete event
-  const { error } = await supabase.from('events').delete().eq('id', id);
-  if (error) throw error;
-  return event;
+/**
+ * Delete an event
+ * @param {string} userId - The user's UUID
+ * @param {number} eventId - Event ID
+ * @returns {Promise<void>}
+ */
+async function deleteEvent(userId, eventId) {
+  // Check if user is the creator
+  const { data: event, error: eventError } = await supabase
+    .from('events')
+    .select('created_by')
+    .eq('id', eventId)
+    .single();
+
+  if (eventError) {
+    if (eventError.code === 'PGRST116') {
+      throw Object.assign(new Error('Event not found'), { status: 404 });
+    }
+    throw Object.assign(new Error('Failed to fetch event'), { status: 500 });
+  }
+
+  if (event.created_by !== userId) {
+    throw Object.assign(new Error('Not authorized to delete this event'), { status: 403 });
+  }
+
+  const { error: deleteError } = await supabase
+    .from('events')
+    .delete()
+    .eq('id', eventId);
+
+  if (deleteError) {
+    throw Object.assign(new Error('Failed to delete event'), { status: 500 });
+  }
 }
 
 async function registerForEvent(eventId, userId) {
@@ -133,12 +237,11 @@ async function unregisterFromEvent(eventId, userId) {
 
 module.exports = {
   createEvent,
-  listEvents,
+  getEvents,
   getEventById,
   updateEvent,
   deleteEvent,
   registerForEvent: async (eventId, userId) => {
-
     const { data, error } = await supabase
       .from('event_registrations')
       .insert([{ event_id: eventId, user_id: userId }])
