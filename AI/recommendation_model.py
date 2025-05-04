@@ -38,12 +38,12 @@ class VideoRecommender:
         
     def load_user_data(self):
         user_interactions = self.database.table('video_interactions').select('*').execute()
-        all_users = self.database.table('users').select('id').execute()
         all_videos = self.database.table('videos').select('*').execute()
         
-        for position, user in enumerate(all_users.data):
-            self.user_to_index[user['id']] = position
-            self.index_to_user[position] = user['id']
+        unique_users = set(interaction['user_id'] for interaction in user_interactions.data)
+        for position, user_id in enumerate(unique_users):
+            self.user_to_index[user_id] = position
+            self.index_to_user[position] = user_id
             
         for position, video in enumerate(all_videos.data):
             self.video_to_index[video['id']] = position
@@ -101,32 +101,28 @@ class VideoRecommender:
         if video_id not in self.similar_videos:
             return []
             
-        similar = self.similar_videos[video_id]
-        sorted_similar = sorted(similar.items(), key=lambda x: x[1], reverse=True)
-        return sorted_similar[:max_suggestions]
+        similar_videos = list(self.similar_videos[video_id].items())
+        similar_videos.sort(key=lambda x: x[1], reverse=True)
+        return similar_videos[:max_suggestions]
         
     def save_user_recommendations(self, user_id, recommendations):
-        expiration_date = datetime.now() + timedelta(days=7)
-        
         for video_id, score in recommendations:
             self.database.table('suggestions').insert({
                 'id': str(uuid.uuid4()),
                 'user_id': user_id,
-                'entity_type': 'video',
                 'entity_id': video_id,
+                'entity_type': 'video',
                 'score': score,
-                'expires_at': expiration_date.isoformat()
+                'expires_at': (datetime.now() + timedelta(days=7)).isoformat()
             }).execute()
             
     def save_similar_videos(self, video_id, similar_videos):
-        expiration_date = datetime.now() + timedelta(days=7)
-        
         for similar_id, score in similar_videos:
             self.database.table('suggestions').insert({
                 'id': str(uuid.uuid4()),
-                'user_id': video_id,
-                'entity_type': 'related_video',
+                'user_id': None,
                 'entity_id': similar_id,
+                'entity_type': 'related_video',
                 'score': score,
-                'expires_at': expiration_date.isoformat()
+                'expires_at': (datetime.now() + timedelta(days=7)).isoformat()
             }).execute() 
