@@ -5,7 +5,7 @@ from supabase import create_client
 import os
 from dotenv import load_dotenv
 from datetime import datetime
-from recommendation_model import VideoRecommender
+from recommendation_model import EntityRecommender
 import httpx
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -34,7 +34,7 @@ app.add_middleware(
 )
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-recommender = VideoRecommender(supabase)
+recommender = EntityRecommender(supabase)
 
 @app.get("/suggestions/{user_id}")
 @limiter.limit("100/minute")
