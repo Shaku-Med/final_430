@@ -2,7 +2,7 @@ import unittest
 from supabase import create_client
 import os
 from dotenv import load_dotenv
-from recommendation_model import RecommenderSystem
+from recommendation_model import VideoRecommender
 from datetime import datetime, timedelta
 import uuid
 
@@ -14,7 +14,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 class TestRecommendationSystem(unittest.TestCase):
     def setUp(self):
         self.supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        self.recommender = RecommenderSystem(self.supabase)
+        self.recommender = VideoRecommender(self.supabase)
         self.test_user_id = str(uuid.uuid4())
         self.test_video_id = str(uuid.uuid4())
         
