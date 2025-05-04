@@ -71,7 +71,19 @@ class EntityRecommender:
         
     def find_similar_entities(self, entities, entity_type):
         self.similar_entities[entity_type] = {}
-        entity_texts = [f"{entity['title']} {entity['description']}" for entity in entities]
+        if not entities:
+            return
+            
+        entity_texts = []
+        for entity in entities:
+            title = entity.get('title', '')
+            description = entity.get('description', '')
+            if title or description:
+                entity_texts.append(f"{title} {description}".strip())
+                
+        if not entity_texts:
+            return
+            
         text_analyzer = TfidfVectorizer()
         text_vectors = text_analyzer.fit_transform(entity_texts)
         similarity_scores = cosine_similarity(text_vectors)
