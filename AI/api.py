@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 import os
 from dotenv import load_dotenv
@@ -7,10 +8,24 @@ from recommendation_model import VideoRecommender
 
 load_dotenv()
 
+# Check for required environment variables
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing required environment variables SUPABASE_URL and/or SUPABASE_KEY")
+
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 recommender = VideoRecommender(supabase)
 
@@ -60,4 +75,8 @@ async def get_related_videos(video_id: str):
         suggestions = supabase.table('suggestions').select('*').eq('user_id', video_id).eq('entity_type', 'related_video').gt('expires_at', datetime.now().isoformat()).execute()
         return suggestions.data
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000) 
