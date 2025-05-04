@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { encrypt } = require('../config/authMiddleWare');
+const { encrypt } = require('../config/crypto');
 const supabase = require('../config/supabase');
 
 function createEncryptedTokens(userData) {
@@ -25,7 +25,7 @@ async function generateAndStore(userData) {
 }
 
 async function refreshAndStore(oldRefreshToken) {
-  // Verify, fetch, re-create, upsert, return new tokens
+  // Verify, fetch, re-create, upsert, retuårn new tokens
   const decoded = jwt.verify(oldRefreshToken, process.env.JWT_SECRET);
   const { data, error } = await supabase
     .from('user_tokens')
