@@ -82,35 +82,35 @@ const navigationItems: NavigationItem[] = [
   {
     title: "Dashboard",
     icon: BookOpen,
-    href: "/dashboard",
+    href: "/dashboard/dashboard",
   },
   {
     title: "Courses",
     icon: GraduationCap,
-    href: "/courses",
+    href: "/dashboard/courses",
   },
   {
     title: "Assignments",
     icon: BookMarked,
-    href: "/assignments",
+    href: "/dashboard/assignments",
   },
   {
     title: "Schedule",
     icon: Calendar,
-    href: "/schedule",
+    href: "/dashboard/schedule",
   },
   {
     title: "Achievements",
     icon: Award,
-    href: "/achievements",
+    href: "/dashboard/achievements",
   },
 ];
 
 const quickLinks: QuickLink[] = [
-  { name: "Transcript", href: "/transcript" },
-  { name: "Resources", href: "/resources" },
-  { name: "Help Center", href: "/help" },
-  { name: "Library", href: "/library" },
+  { name: "Transcript", href: "/dashboard/transcript" },
+  { name: "Resources", href: "/dashboard/resources" },
+  { name: "Help Center", href: "/dashboard/help" },
+  { name: "Library", href: "/dashboard/library" },
 ];
 
 const courses: Course[] = [
@@ -181,12 +181,6 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
         )}
       </div>
 
-      <div className="p-4 border-b bg-card">
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." className="pl-8" />
-        </div>
-      </div>
       <div className="flex-1 overflow-y-auto py-2">
         <div className="px-3 py-2">
           <nav className="space-y-1 relative">
@@ -335,17 +329,24 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
 
 export function SidebarTrigger(): JSX.Element {
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useSidebar();
+  let isM = useIsMobile()
   
   return (
-    <div className="md:hidden fixed top-0 left-0 z-30 m-4">
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+    <div className="md:hidden top-0 left-0 z-30">
+      <Sheet open={!isM ? false : isMobileMenuOpen} onOpenChange={e => {
+        setIsMobileMenuOpen(e)
+      }}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Menu className="h-5 w-5" />
+          <Button variant={`outline`} size="icon">
+            {
+              isMobileMenuOpen ?
+              <X className="h-5 w-5" /> :
+              <Menu className="h-5 w-5" />
+            }
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-72 max-w-full">
-          <SidebarContent onClose={() => setIsMobileMenuOpen(true)} />
+        <SheetContent side="left" className="p-0 w-72 max-w-full min-w-[60%]">
+          <SidebarContent />
         </SheetContent>
       </Sheet>
     </div>

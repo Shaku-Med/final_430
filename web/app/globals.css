@@ -482,12 +482,12 @@ img {
 
 .grid_bx {
   display: grid;
-  grid-template-columns: repeat(system-fit, minmax(20rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
 @media screen and (max-width: 767px) {
   .grid_bx {
-    grid-template-columns: repeat(system-fit, minmax(15rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   }
 }
 

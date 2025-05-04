@@ -1,0 +1,226 @@
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { X, Pencil, Check } from 'lucide-react';
+import { FilePreviewDialog } from './FilePreviewDialog';
+import { toast } from 'sonner';
+import {motion} from 'framer-motion'
+// 
+interface UploadedFile {
+  id: string;
+  file: globalThis.File;
+  progress: number;
+  status: 'uploading' | 'completed' | 'error';
+  error?: string;
+  customName?: string;
+}
+
+interface FileUploadProps {
+  onFilesChange: (files: UploadedFile[]) => void;
+  maxFiles?: number;
+  maxSize?: number; // in bytes
+}
+
+export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 * 1024 }: FileUploadProps) {
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+
+  const uploadFile = async (file: globalThis.File) => {
+    const id = crypto.randomUUID();
+    const uploadedFile: UploadedFile = {
+      id,
+      file,
+      progress: 0,
+      status: 'uploading',
+      customName: file.name
+    };
+
+    setUploadedFiles(prev => [...prev, uploadedFile]);
+
+    try {
+      // Simulate file upload with progress
+      const totalSize = file.size;
+      let uploadedSize = 0;
+
+      // Create a mock upload progress
+      const interval = setInterval(() => {
+        uploadedSize += totalSize / 10;
+        const progress = Math.min((uploadedSize / totalSize) * 100, 100);
+        
+        setUploadedFiles(prev => 
+          prev.map(f => 
+            f.id === id ? { ...f, progress } : f
+          )
+        );
+
+        if (progress === 100) {
+          clearInterval(interval);
+          setUploadedFiles(prev => 
+            prev.map(f => 
+              f.id === id ? { ...f, status: 'completed' } : f
+            )
+          );
+          onFilesChange(uploadedFiles.filter(f => f.status === 'completed'));
+        }
+      }, 500);
+
+      // In a real implementation, you would:
+      // 1. Upload to a temporary storage (e.g., S3, Firebase Storage)
+      // 2. Track upload progress using XMLHttpRequest or fetch
+      // 3. Handle errors appropriately
+      // 4. Store the temporary file URL or reference
+
+    } catch (error) {
+      setUploadedFiles(prev => 
+        prev.map(f => 
+          f.id === id ? { ...f, status: 'error', error: 'Upload failed' } : f
+        )
+      );
+    }
+  };
+
+  const onDrop = useCallback((acceptedFiles: globalThis.File[]) => {
+    const validFiles = acceptedFiles.filter(file => {
+      if (file.size > maxSize) {
+        toast.error(`File ${file.name} exceeds the size limit`);
+        return false;
+      }
+      return true;
+    });
+
+    if (uploadedFiles.length + validFiles.length > maxFiles) {
+      toast.error(`Maximum ${maxFiles} files allowed`);
+      return;
+    }
+
+    setIsUploading(true);
+    validFiles.forEach(uploadFile);
+    setIsUploading(false);
+  }, [maxFiles, maxSize, uploadedFiles]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxFiles,
+    maxSize
+  });
+
+  const removeFile = (id: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== id));
+    onFilesChange(uploadedFiles.filter(f => f.id !== id && f.status === 'completed'));
+  };
+
+  const startEditing = (file: UploadedFile) => {
+    setEditingFileId(file.id);
+    setEditName(file.customName || file.file.name);
+  };
+
+  const saveEdit = (id: string) => {
+    setUploadedFiles(prev => 
+      prev.map(f => 
+        f.id === id ? { ...f, customName: editName } : f
+      )
+    );
+    setEditingFileId(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingFileId(null);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary'
+        }`}
+      >
+        <input {...getInputProps()} />
+        <p className="text-sm text-muted-foreground">
+          {isDragActive
+            ? 'Drop the files here'
+            : 'Drag & drop files here, or click to select files'}
+        </p>
+      </div>
+
+      <div className="">
+        {uploadedFiles.map((uploadedFile, key) => (
+          <motion.div
+            key={uploadedFile.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={`space-y-1 px-4 py-2 overflow-hidden hover:bg-muted/50 ${key < 1 ? uploadedFiles.length === 1 ? ` rounded-lg` : ` rounded-t-lg` : key === uploadedFiles.length - 1 ? ` rounded-b-lg` : ``} border`}
+          >
+            <div className="flex items-center gap-2">
+              <FilePreviewDialog
+                file={uploadedFile.file}
+                onRemove={() => removeFile(uploadedFile.id)}
+              />
+              <div className="flex-1">
+                {editingFileId === uploadedFile.id ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="h-8"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          saveEdit(uploadedFile.id);
+                        } else if (e.key === 'Escape') {
+                          cancelEdit();
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => saveEdit(uploadedFile.id)}
+                      className="text-green-500 hover:text-green-600"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium">{uploadedFile.customName || uploadedFile.file.name}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEditing(uploadedFile)}
+                      disabled={uploadedFile.status === 'uploading'}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeFile(uploadedFile.id)}
+                disabled={uploadedFile.status === 'uploading'}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {uploadedFile.status === 'uploading' && (
+              <Progress value={uploadedFile.progress} />
+            )}
+            {uploadedFile.status === 'error' && (
+              <p className="text-sm text-destructive">{uploadedFile.error}</p>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+} 

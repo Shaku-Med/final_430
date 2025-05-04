@@ -140,7 +140,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-md shadow-xl">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
-           <img className={`w-20`} src={`../../../../icons/web/icon-512.png`}/>
+           <img className={`w-20`} src={`../../../../icons/web/icon-512.png`} alt="logo"/>
           </div>
           <CardTitle className="text-2xl text-center font-bold ">Log in to your account</CardTitle>
           <CardDescription className="text-center ">
