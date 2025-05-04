@@ -74,7 +74,7 @@ class VideoRecommender:
             for interaction in user_interactions:
                 user_position = torch.tensor([self.user_to_index[interaction['user_id']]])
                 video_position = torch.tensor([self.video_to_index[interaction['video_id']]])
-                user_preference = torch.tensor([1.0 if interaction['interaction_type'] == 'like' else 0.0])
+                user_preference = torch.tensor([[1.0 if interaction['interaction_type'] == 'like' else 0.0]])
                 
                 optimizer.zero_grad()
                 prediction = self.model(user_position, video_position)
