@@ -1,7 +1,7 @@
 from supabase import create_client
 import os
 from dotenv import load_dotenv
-from recommendation_model import VideoRecommender
+from recommendation_model import EntityRecommender
 from visitor_analytics import VisitorAnalytics
 import uvicorn
 import threading
@@ -15,7 +15,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
 def update_suggestions():
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    recommender = VideoRecommender(supabase)
+    recommender = EntityRecommender(supabase)
     interactions = recommender.load_user_data()
     recommender.train_recommender(interactions)
     
