@@ -18,12 +18,13 @@ class TestRecommendationSystem(unittest.TestCase):
         self.recommender = ContentRecommender(self.supabase)
         self.analytics = AnalyticsSystem(self.supabase)
         
+        # Generate unique IDs for test data
         self.test_user_id = str(uuid.uuid4())
         self.test_video_id = str(uuid.uuid4())
         self.test_event_id = str(uuid.uuid4())
         self.test_project_id = str(uuid.uuid4())
         
-        # Create test user
+        # Create test user - using id field directly 
         self.supabase.table('users').insert({
             'id': self.test_user_id,
             'email': f'test_{uuid.uuid4()}@example.com'
@@ -32,7 +33,7 @@ class TestRecommendationSystem(unittest.TestCase):
         # Create test video
         self.supabase.table('videos').insert({
             'id': self.test_video_id,
-            'user_id': self.test_user_id,
+            'user_id': self.test_user_id,  # Use the user_id here
             'title': 'Test Video: Python Machine Learning',
             'description': 'A comprehensive tutorial on ML in Python',
             'url': f'https://example.com/video/{uuid.uuid4()}'
@@ -85,20 +86,20 @@ class TestRecommendationSystem(unittest.TestCase):
         self.assertGreaterEqual(len(self.recommender.entity_to_index.get('projects', {})), 1)
         
     def test_recommendations(self):
-        self.recommender.load_user_data()
+        data = self.recommender.load_user_data()
         
         # Test video recommendations
-        self.recommender.train_recommender([], 'videos')
+        self.recommender.train_recommender(data['video_interactions'], 'videos')
         video_recommendations = self.recommender.get_user_recommendations(self.test_user_id, 'videos')
         self.assertIsInstance(video_recommendations, list)
         
         # Test event recommendations
-        self.recommender.train_recommender([], 'events')
+        self.recommender.train_recommender(data['event_participants'], 'events')
         event_recommendations = self.recommender.get_user_recommendations(self.test_user_id, 'events')
         self.assertIsInstance(event_recommendations, list)
         
         # Test project recommendations
-        self.recommender.train_recommender([], 'projects')
+        self.recommender.train_recommender(data['project_members'], 'projects')
         project_recommendations = self.recommender.get_user_recommendations(self.test_user_id, 'projects')
         self.assertIsInstance(project_recommendations, list)
         
@@ -109,7 +110,7 @@ class TestRecommendationSystem(unittest.TestCase):
         similar_video_id = str(uuid.uuid4())
         self.supabase.table('videos').insert({
             'id': similar_video_id,
-            'user_id': self.test_user_id,
+            'user_id': self.test_user_id,  # Use the user_id here
             'title': 'Python ML Advanced Topics',
             'description': 'Advanced tutorial on ML in Python programming language',
             'url': f'https://example.com/video/{uuid.uuid4()}'
