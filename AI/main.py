@@ -17,17 +17,20 @@ def update_suggestions():
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     recommender = EntityRecommender(supabase)
     interactions = recommender.load_user_data()
-    recommender.train_recommender(interactions)
     
+    for entity_type in ['videos', 'events', 'projects']:
+        recommender.train_recommender(interactions[f'{entity_type[:-1]}_interactions'], entity_type)
+        
     users = supabase.table('users').select('id').execute()
     for user in users.data:
-        recommendations = recommender.get_user_recommendations(user['id'])
-        recommender.save_user_recommendations(user['id'], recommendations)
+        for entity_type in ['videos', 'events', 'projects']:
+            recommendations = recommender.get_user_recommendations(user['id'], entity_type)
+            recommender.save_user_recommendations(user['id'], recommendations, entity_type)
         
     videos = supabase.table('videos').select('id').execute()
     for video in videos.data:
-        similar = recommender.find_similar_videos_for(video['id'])
-        recommender.save_similar_videos(video['id'], similar)
+        similar = recommender.find_similar_entities_for(video['id'], 'videos')
+        recommender.save_similar_entities(video['id'], similar, 'videos')
 
 def scheduler():
     while True:
