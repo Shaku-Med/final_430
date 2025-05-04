@@ -18,8 +18,14 @@ def update_suggestions():
     recommender = EntityRecommender(supabase)
     interactions = recommender.load_user_data()
     
-    for entity_type in ['videos', 'events', 'projects']:
-        recommender.train_recommender(interactions[f'{entity_type[:-1]}_interactions'], entity_type)
+    entity_interactions = {
+        'videos': interactions['video_interactions'],
+        'events': interactions['event_participants'],
+        'projects': interactions['project_members']
+    }
+    
+    for entity_type, interaction_data in entity_interactions.items():
+        recommender.train_recommender(interaction_data, entity_type)
         
     users = supabase.table('users').select('id').execute()
     for user in users.data:
