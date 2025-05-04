@@ -2,14 +2,13 @@ from datetime import datetime, timedelta
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import uuid
+from datetime import timezone
 
 class VisitorAnalytics:
     def __init__(self, supabase_client):
         self.client = supabase_client
         
     def calculate_visitor_stats(self):
-        two_months_ago = datetime.now() - timedelta(days=60)
-        
         events = self.client.table('event_participants').select('*').execute()
         projects = self.client.table('project_members').select('*').execute()
         
@@ -17,20 +16,18 @@ class VisitorAnalytics:
         project_stats = {}
         
         for event in events.data:
-            if datetime.fromisoformat(event['joined_at']) >= two_months_ago:
-                event_id = event['event_id']
-                event_stats[event_id] = event_stats.get(event_id, 0) + 1
+            event_id = event['event_id']
+            event_stats[event_id] = event_stats.get(event_id, 0) + 1
                 
         for project in projects.data:
-            if datetime.fromisoformat(project['joined_at']) >= two_months_ago:
-                project_id = project['project_id']
-                project_stats[project_id] = project_stats.get(project_id, 0) + 1
+            project_id = project['project_id']
+            project_stats[project_id] = project_stats.get(project_id, 0) + 1
                 
         self.save_stats(event_stats, 'event')
         self.save_stats(project_stats, 'project')
         
     def save_stats(self, stats, entity_type):
-        today = datetime.now().date()
+        today = datetime.now(timezone.utc).date()
         
         for entity_id, count in stats.items():
             self.client.table('status').insert({
@@ -57,7 +54,7 @@ class VisitorAnalytics:
         model = RandomForestRegressor()
         model.fit(X, y)
         
-        future_dates = pd.date_range(start=datetime.now(), periods=7)
+        future_dates = pd.date_range(start=datetime.now(timezone.utc), periods=7)
         future_X = pd.get_dummies(future_dates.dayofweek)
         
         predictions = model.predict(future_X)

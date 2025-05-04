@@ -36,33 +36,6 @@ app.add_middleware(
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 recommender = VideoRecommender(supabase)
 
-async def verify_request(request: Request):
-    try:
-        cookies = request.cookies
-        headers = dict(request.headers)
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                VERIFYING_API | "",
-                json={"cookies": cookies, "headers": headers}
-            )
-            
-            if response.status_code != 200:
-                return False
-                
-            return response.json().get("verified", False)
-    except Exception:
-        return False
-
-@app.middleware("http")
-async def verify_middleware(request: Request, call_next):
-    if not await verify_request(request):
-        return JSONResponse(
-            status_code=404,
-            content={"detail": "Not found"}
-        )
-    return await call_next(request)
-
 @app.get("/suggestions/{user_id}")
 @limiter.limit("100/minute")
 async def get_suggestions(request: Request, user_id: str):
