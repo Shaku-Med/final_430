@@ -221,7 +221,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate reset link
-        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/account/reset/verify/${resetToken}`;
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+        if (!baseUrl) {
+            console.error('NEXT_PUBLIC_APP_URL environment variable is not set');
+            return NextResponse.json({ error: 'Failed to generate reset link: Configuration error' }, { status: 500 });
+        }
+        const resetLink = `${baseUrl}/account/reset/verify/${resetToken}`;
 
         // Send email with reset link
         await SubmitMail(
