@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import SetQuickToken from "../Actions/SetQuickToken";
+import {toast} from 'sonner'
+import Cookies from 'js-cookie';
 
 const PasswordResetPage = () => {
   const [email, setEmail] = useState("");
@@ -113,26 +116,54 @@ const PasswordResetPage = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    
+
     try {
+      // Get user's location first
       if (!location) {
-        throw new Error("Location is required to reset password");
+        setError("Please allow location access to reset your password");
+        setIsLoading(false);
+        return;
       }
-      
-      if (!email.includes("@")) {
-        throw new Error("Please enter a valid email address");
+
+      let setSession = await SetQuickToken()
+
+      if(!setSession){
+        toast.error(`Sorry! we had troubles logging you in. Try refreshing and try again.`)
+        setIsSubmitted(false)
+        return;
       }
-      
-      // Simulate API call with location data
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Here you would normally send both email and location to your backend
-      console.log("Resetting password for:", email, "from location:", location);
-      
+
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId: email,
+          token: Cookies.get('_athk_'),
+          location: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            timestamp: locationUpdatedAt?.toISOString()
+          }
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to request password reset');
+      }
+
       setIsSubmitted(true);
-      stopLocationTracking(); // Stop tracking once form is submitted
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      
+      // Show location details to user
+      if (data.location) {
+        alert(`Password reset requested from:\nIP: ${data.location.ip}\nDevice: ${data.location.userAgent}\nTime: ${new Date(data.location.timestamp).toLocaleString()}`);
+      }
+
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }

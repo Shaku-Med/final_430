@@ -42,37 +42,47 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
     setUploadedFiles(prev => [...prev, uploadedFile]);
 
     try {
-      // Simulate file upload with progress
-      const totalSize = file.size;
-      let uploadedSize = 0;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', file.name);
+      formData.append('fileId', id);
 
-      // Create a mock upload progress
-      const interval = setInterval(() => {
-        uploadedSize += totalSize / 10;
-        const progress = Math.min((uploadedSize / totalSize) * 100, 100);
-        
-        setUploadedFiles(prev => 
-          prev.map(f => 
-            f.id === id ? { ...f, progress } : f
-          )
-        );
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadedFiles(prev => 
+            prev.map(f => 
+              f.id === id ? { ...f, progress } : f
+            )
+          );
+        }
+      });
 
-        if (progress === 100) {
-          clearInterval(interval);
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
           setUploadedFiles(prev => 
             prev.map(f => 
               f.id === id ? { ...f, status: 'completed' } : f
             )
           );
           onFilesChange(uploadedFiles.filter(f => f.status === 'completed'));
+        } else {
+          throw new Error('Upload failed');
         }
-      }, 500);
+      };
 
-      // In a real implementation, you would:
-      // 1. Upload to a temporary storage (e.g., S3, Firebase Storage)
-      // 2. Track upload progress using XMLHttpRequest or fetch
-      // 3. Handle errors appropriately
-      // 4. Store the temporary file URL or reference
+      xhr.onerror = () => {
+        setUploadedFiles(prev => 
+          prev.map(f => 
+            f.id === id ? { ...f, status: 'error', error: 'Upload failed' } : f
+          )
+        );
+      };
+
+      xhr.open('POST', '/api/upload');
+      xhr.send(formData);
 
     } catch (error) {
       setUploadedFiles(prev => 

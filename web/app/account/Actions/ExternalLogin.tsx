@@ -10,6 +10,8 @@ import db from '@/app/Database/Supabase/Base1'
 import { CreatePassword, GenerateId, generateOtp, SetLoginCookie, VerifyPassword } from "@/app/Auth/Lock/Password"
 import { SubmitMail } from "@/app/Functions/Mailing/Mail"
 import OTPVerificationEmail from "@/app/Functions/Mailing/Components/Code"
+import LoginNotificationEmail from "@/app/Functions/Mailing/Components/LoginNotification"
+import SetToken from '@/app/Auth/IsAuth/SetToken'
 
 type AccountType = 'google' | 'apple' | 'github' | 'normal';
 
@@ -99,10 +101,34 @@ export let handleCodeSending = async (data: any, subject?: string, uid?: string)
     }
 }
 
+const sendLoginNotification = async (user: any, device: any, ip: string, isSuccess: boolean) => {
+    try {
+        const loginTime = new Date().toLocaleString();
+        const deviceInfo = device?.getUA || 'Unknown device';
+        
+        await SubmitMail(
+            user.email,
+            `${isSuccess ? 'Successful' : 'Attempted'} Login to Your Account`,
+            `A ${isSuccess ? 'successful' : 'new'} login was detected on your account.`,
+            <LoginNotificationEmail
+                username={user.firstname?.split(/\s+/)[0] || 'User'}
+                loginTime={loginTime}
+                deviceInfo={deviceInfo}
+                location={ip}
+                companyName="CSI SPOTLIGHT"
+                companyLogo="https://kpmedia.medzyamara.dev/icon-512.png"
+            />
+        );
+    } catch (error) {
+        console.error('Error sending login notification:', error);
+    }
+};
+
 const ExternalLogin = async (data: LoginSignupProps) => {
   try {
     let h = await headers()
     let au = h.get(`user-agent`)?.split(/\s+/).join('')
+    let clientIP = await getClientIP(h);
     // 
     let header_v = await VerifyHeaders()
     if(!header_v) return await ReturnResponse(401, `Something seems not to be working right.`);
@@ -111,7 +137,7 @@ const ExternalLogin = async (data: LoginSignupProps) => {
     let _athK_ = c?.get(`_athk_`)?.value
 
     let authSession = c?.get(`externalsession`)?.value
-    let ky = [`${au}`, `${await getClientIP(h)}`]
+    let ky = [`${au}`, `${clientIP}`]
     // 
     if(!_athK_ || !authSession) {
         c.delete(`externalsession`)
@@ -151,6 +177,9 @@ const ExternalLogin = async (data: LoginSignupProps) => {
     if(user?.length > 0){
        user = user[0]
 
+       // Send notification for login attempt
+       await sendLoginNotification(user, data?.device ? JSON.parse(`${data?.device}`) : {}, clientIP, false);
+
        if (user?.account_type === 'normal') {
         return await ReturnResponse(401, `Please use the normal login method to access your account.`);
     }
@@ -162,7 +191,21 @@ const ExternalLogin = async (data: LoginSignupProps) => {
        if(!user?.isVerified) {
             let sub = await handleCodeSending(data, `Account verification code resent.`);
             if(!sub) return await ReturnResponse();
-            // 
+            
+            const ky = [`${process.env.TOKEN3}`, `${clientIP}`]
+            const token = await SetToken({
+                expiresIn: '1d',
+                algorithm: 'HS512'
+            }, ky, {
+                email: data?.email,
+                account: false,
+                shouldLogin: true
+            })
+            
+            c.set('acT', `${token}`, {
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            })
+            
             return await ReturnResponse(401, `This account is not verified and cannot be used.`, {
                 action: `verify_account`
             })
@@ -184,7 +227,6 @@ const ExternalLogin = async (data: LoginSignupProps) => {
        if(dv){
             if(dv?.isRestricted) return await ReturnResponse(401, `Access denied! Please reload your page and try again.`);
             if(dv?.should_remember){
-
                 let setC: SIGNIN[] = [
                     {
                         name: `c_usr`,
@@ -199,14 +241,30 @@ const ExternalLogin = async (data: LoginSignupProps) => {
                 ]
         
                 await SetLoginCookie(setC)
+                
+                // Send notification for successful login
+                await sendLoginNotification(user, device, clientIP, true);
 
                 return await ReturnResponse(200, `Welcome ${user?.name}.`, {}, true)
             }
             else {
-                
                 let sub = await handleCodeSending(data)
                 if(!sub) return await ReturnResponse()
-                // 
+                
+                const ky = [`${process.env.TOKEN3}`, `${clientIP}`]
+                const token = await SetToken({
+                    expiresIn: '1d',
+                    algorithm: 'HS512'
+                }, ky, {
+                    email: data?.email,
+                    account: false,
+                    shouldLogin: true
+                })
+                
+                c.set('acT', `${token}`, {
+                    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                })
+                
                 return await ReturnResponse(200, `We've sent you a verification code to your email. Check your email to verify your action.`, {
                     action: `verify`
                 }, true)
@@ -215,7 +273,21 @@ const ExternalLogin = async (data: LoginSignupProps) => {
        else {
         let sub = await handleCodeSending(data)
         if(!sub) return await ReturnResponse()
-        // 
+        
+        const ky = [`${process.env.TOKEN3}`, `${clientIP}`]
+        const token = await SetToken({
+            expiresIn: '1d',
+            algorithm: 'HS512'
+        }, ky, {
+            email: data?.email,
+            account: false,
+            shouldLogin: true
+        })
+        
+        c.set('acT', `${token}`, {
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        })
+        
         return await ReturnResponse(200, `We've sent you a verification code to your email. Check your email to verify your action.`, {
             action: `verify`
         }, true)
@@ -258,7 +330,7 @@ const ExternalLogin = async (data: LoginSignupProps) => {
         let device = data?.device ? JSON.parse(`${data?.device}`) : {}
         const {error: DevicesError} = await db.from(`devices`).insert({
             user_id: id?.user_id,
-            ip_address: `${await getClientIP(h)}`,
+            ip_address: `${clientIP}`,
             device_info: device,
             isActive: true,
             isRestricted: false,

@@ -7,6 +7,7 @@ import { VerifyHeaders } from './SetQuickToken'
 import { CreatePassword, GenerateId, generateOtp, SetLoginCookie, VerifyPassword } from '@/app/Auth/Lock/Password'
 import { SubmitMail } from '@/app/Functions/Mailing/Mail'
 import OTPVerificationEmail from '@/app/Functions/Mailing/Components/Code'
+import LoginNotificationEmail from '@/app/Functions/Mailing/Components/LoginNotification'
 import SetToken, { getClientIP } from '@/app/Auth/IsAuth/SetToken'
 import { handleCodeSending } from './ExternalLogin'
 
@@ -152,6 +153,20 @@ const LoginSignup = async (data?: LoginSignupProps, isSignup?: boolean) => {
                 
                 const vPass = await VerifyPassword(`${data?.password}`, `${gP?.password}`)
                 if (!vPass) {
+                    // Send failed login attempt notification
+                    await SubmitMail(
+                        user.email,
+                        'Failed Login Attempt - CSI SPOTLIGHT',
+                        'Someone attempted to log in to your account with incorrect credentials.',
+                        <LoginNotificationEmail
+                            username={user.firstname || user.name}
+                            loginTime={new Date().toLocaleString()}
+                            deviceInfo={device?.getUA || 'Unknown device'}
+                            location={clientIP}
+                            companyName="CSI SPOTLIGHT"
+                            companyLogo="https://kpmedia.medzyamara.dev/icon-512.png"
+                        />
+                    );
                     return await ReturnResponse(401, 'Wrong email or password')
                 }
                 
@@ -175,6 +190,22 @@ const LoginSignup = async (data?: LoginSignupProps, isSignup?: boolean) => {
                         ]
                         
                         await SetLoginCookie(setC)
+                        
+                        // Send successful login notification
+                        await SubmitMail(
+                            user.email,
+                            'Successful Login - CSI SPOTLIGHT',
+                            'Your account was successfully logged into.',
+                            <LoginNotificationEmail
+                                username={user.firstname || user.name}
+                                loginTime={new Date().toLocaleString()}
+                                deviceInfo={device?.getUA || 'Unknown device'}
+                                location={clientIP}
+                                companyName="CSI SPOTLIGHT"
+                                companyLogo="https://kpmedia.medzyamara.dev/icon-512.png"
+                            />
+                        );
+                        
                         return await ReturnResponse(200, `Welcome ${user?.firstname}.`, {}, true)
                     } else {
                         return await sendVerificationCode({

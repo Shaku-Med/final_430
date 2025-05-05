@@ -13,8 +13,9 @@ export let transport = nodemailer.createTransport({
 
 let from = `"CSI SPOTLIGHT" ${process.env.API_USER}`;
 
-export const getData = async (component: any) => {
+export const getData = async (component?: React.ReactElement) => {
   try {
+    if (!component) return null;
     const ReactDOMServer = (await import('react-dom/server')).default;
     const staticMarkup = ReactDOMServer.renderToStaticMarkup(component);
     return staticMarkup;
@@ -33,7 +34,7 @@ export const SubmitMail = async (
   to: string,
   subject: string,
   text?: string,
-  design?: any,
+  design?: React.ReactElement,
   options?: EmailOptions
 ) => {
   try {

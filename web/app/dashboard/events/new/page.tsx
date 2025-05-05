@@ -30,6 +30,8 @@ export default function NewEventPage() {
     title: '',
     description: '',
     date: new Date(),
+    startTime: '09:00',
+    endTime: '10:00',
     status: 'upcoming',
     thumbnail: null as File | null,
     attachments: [] as UploadedFile[],
@@ -72,6 +74,8 @@ export default function NewEventPage() {
       formDataToSend.append('title', formData.title)
       formDataToSend.append('description', formData.description)
       formDataToSend.append('date', formData.date.toISOString())
+      formDataToSend.append('startTime', formData.startTime)
+      formDataToSend.append('endTime', formData.endTime)
       formDataToSend.append('status', formData.status)
       formDataToSend.append('location', formData.location)
       formDataToSend.append('mapUrl', mapUrl)
@@ -137,6 +141,26 @@ export default function NewEventPage() {
                 date={formData.date}
                 onSelect={(date) => date && setFormData({ ...formData, date })}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Time</Label>
+                <Input
+                  type="time"
+                  value={formData.startTime}
+                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Time</Label>
+                <Input
+                  type="time"
+                  value={formData.endTime}
+                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Status</Label>
