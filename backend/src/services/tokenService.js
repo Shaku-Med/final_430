@@ -20,7 +20,7 @@ async function saveTokensToDb(userId, token, refreshToken) {
   const { error } = await supabase
     .from('user_tokens')
     .upsert({ 
-      user_id: userId, // This is a text field, not a UUID
+      user_id: userId,
       token, 
       refresh_token: refreshToken, 
       expires_at: expiresAt 
@@ -29,20 +29,52 @@ async function saveTokensToDb(userId, token, refreshToken) {
 }
 
 async function generateAndStore(userData) {
-  // Validate that user exists in the database
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('id, user_id')
-    .eq('user_id', userData.user_id)
-    .single();
+  console.log('Attempting to find user with ID:', userData.user_id);
+  
+  try {
+    // First, let's check if we can query the users table at all
+    const { data: testQuery, error: testError } = await supabase
+      .from('users')
+      .select('count')
+      .limit(1);
+    
+    console.log('Test query result:', { testQuery, testError });
 
-  if (userError || !user) {
-    throw new Error('User not found');
+    // Now try to find the specific user
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, user_id, name, email')
+      .eq('user_id', userData.user_id)
+      .single();
+
+    console.log('User lookup details:', {
+      query: `SELECT * FROM users WHERE user_id = '${userData.user_id}'`,
+      result: { user, error: userError }
+    });
+
+    if (userError) {
+      console.error('Database error:', {
+        code: userError.code,
+        message: userError.message,
+        details: userError.details,
+        hint: userError.hint
+      });
+      throw new Error(`Database error: ${userError.message}`);
+    }
+
+    if (!user) {
+      console.log('No user found with ID:', userData.user_id);
+      throw new Error('User not found');
+    }
+
+    console.log('Found user:', user);
+    const { token, refreshToken } = createEncryptedTokens(userData);
+    await saveTokensToDb(userData.user_id, token, refreshToken);
+    return { token, refreshToken };
+  } catch (error) {
+    console.error('Error in generateAndStore:', error);
+    throw error;
   }
-
-  const { token, refreshToken } = createEncryptedTokens(userData);
-  await saveTokensToDb(userData.user_id, token, refreshToken);
-  return { token, refreshToken };
 }
 
 async function refreshAndStore(oldRefreshToken) {
