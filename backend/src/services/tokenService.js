@@ -31,48 +31,24 @@ async function saveTokensToDb(userId, token, refreshToken) {
 async function generateAndStore(userData) {
   console.log('Attempting to find user with ID:', userData.user_id);
   
-  try {
-    // Query without .single() first to see what we get
-    const { data: users, error: userError } = await supabase
+
+    // First, let's check if we can query the users table at all
+    const { data: allUsers, error: countError } = await supabase
       .from('users')
-      .select('id, user_id, name, email')
-      .eq('user_id', userData.user_id);
+      .select('user_id')
+      .limit(5);
 
-    console.log('User lookup details:', {
-      query: `SELECT * FROM users WHERE user_id = '${userData.user_id}'`,
-      result: { users, error: userError }
-    });
-
-    if (userError) {
-      console.error('Database error:', {
-        code: userError.code,
-        message: userError.message,
-        details: userError.details,
-        hint: userError.hint
-      });
-      throw new Error(`Database error: ${userError.message}`);
-    }
-
-    if (!users || users.length === 0) {
-      console.log('No user found with ID:', userData.user_id);
-      throw new Error('User not found');
-    }
-
-    if (users.length > 1) {
-      console.warn('Multiple users found with the same user_id:', userData.user_id);
-      // Use the first user found
-      console.log('Using the first user found:', users[0]);
-    }
-
-    const user = users[0];
-    console.log('Found user:', user);
-    const { token, refreshToken } = createEncryptedTokens(userData);
-    await saveTokensToDb(userData.user_id, token, refreshToken);
-    return { token, refreshToken };
-  } catch (error) {
-    console.error('Error in generateAndStore:', error);
-    throw error;
+  if (error) {
+    throw new Error(`Database error: ${error.message}`);
   }
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const { token, refreshToken } = createEncryptedTokens(userData);
+  await saveTokensToDb(userData.user_id, token, refreshToken);
+  return { token, refreshToken };
 }
 
 async function refreshAndStore(oldRefreshToken) {
