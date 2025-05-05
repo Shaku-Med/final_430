@@ -3,7 +3,7 @@ import axios from "axios"
 import { cookies } from "next/headers"
 import VerifyToken from "@/app/Auth/PageAuth/Action/VerifyToken"
 
-export let ErrReturn = (message: object | any, status: number) => {
+const ErrReturn = (message: object | any, status: number) => {
   try {
     return Response.json({
       message: message,
