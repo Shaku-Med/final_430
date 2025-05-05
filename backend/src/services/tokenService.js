@@ -32,24 +32,15 @@ async function generateAndStore(userData) {
   console.log('Attempting to find user with ID:', userData.user_id);
   
   try {
-    // First, let's check if we can query the users table at all
-    const { data: testQuery, error: testError } = await supabase
-      .from('users')
-      .select('count')
-      .limit(1);
-    
-    console.log('Test query result:', { testQuery, testError });
-
-    // Now try to find the specific user
-    const { data: user, error: userError } = await supabase
+    // Query without .single() first to see what we get
+    const { data: users, error: userError } = await supabase
       .from('users')
       .select('id, user_id, name, email')
-      .eq('user_id', userData.user_id)
-      .single();
+      .eq('user_id', userData.user_id);
 
     console.log('User lookup details:', {
       query: `SELECT * FROM users WHERE user_id = '${userData.user_id}'`,
-      result: { user, error: userError }
+      result: { users, error: userError }
     });
 
     if (userError) {
@@ -62,11 +53,18 @@ async function generateAndStore(userData) {
       throw new Error(`Database error: ${userError.message}`);
     }
 
-    if (!user) {
+    if (!users || users.length === 0) {
       console.log('No user found with ID:', userData.user_id);
       throw new Error('User not found');
     }
 
+    if (users.length > 1) {
+      console.warn('Multiple users found with the same user_id:', userData.user_id);
+      // Use the first user found
+      console.log('Using the first user found:', users[0]);
+    }
+
+    const user = users[0];
     console.log('Found user:', user);
     const { token, refreshToken } = createEncryptedTokens(userData);
     await saveTokensToDb(userData.user_id, token, refreshToken);
