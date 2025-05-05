@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate reset link
-        const resetLink = `http://192.168.1.92:3000/account/reset/verify/${resetToken}`;
+        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/account/reset/verify/${resetToken}`;
 
         // Send email with reset link
         await SubmitMail(
