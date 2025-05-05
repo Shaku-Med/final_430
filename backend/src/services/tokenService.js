@@ -30,24 +30,35 @@ async function saveTokensToDb(userId, token, refreshToken) {
 
 async function generateAndStore(userData) {
   console.log('Attempting to find user with ID:', userData.user_id);
-  
 
-    // First, let's check if we can query the users table at all
-    const { data: allUsers, error: countError } = await supabase
-      .from('users')
-      .select('user_id')
-      .limit(5);
+  // Query the user from your custom `users` table by user_id
+  const { data: users, error } = await supabase
+    .from('users')
+    .select('id, user_id, name, email')
+    .eq('user_id', userData.user_id);
 
+  // Log debug info
   if (error) {
+    console.error('Database error:', error);
     throw new Error(`Database error: ${error.message}`);
   }
 
-  if (!user) {
+  if (!users || users.length === 0) {
+    console.log('No user found with user_id:', userData.user_id);
     throw new Error('User not found');
   }
 
-  const { token, refreshToken } = createEncryptedTokens(userData);
-  await saveTokensToDb(userData.user_id, token, refreshToken);
+  const user = users[0]; // Use first matched user
+
+  // Optional: validate found user matches expected format
+  if (!user || !user.user_id) {
+    throw new Error('Invalid user data from DB');
+  }
+
+  // Generate tokens and save
+  const { token, refreshToken } = createEncryptedTokens(user);
+  await saveTokensToDb(user.user_id, token, refreshToken);
+
   return { token, refreshToken };
 }
 
