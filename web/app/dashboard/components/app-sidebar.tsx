@@ -19,7 +19,12 @@ import {
   LucideIcon,
   Filter,
   CircleSlash,
-  Lightbulb
+  Lightbulb,
+  Plus,
+  BlocksIcon,
+  TvMinimalIcon,
+  Blocks,
+  Lock
 } from "lucide-react";
 import { 
   Avatar, 
@@ -51,6 +56,7 @@ import { Separator } from "@/components/ui/separator";
 import Logo from "@/app/Home/Icons/Logo";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { useIsMobile } from "../hooks/use-mobile";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavigationItem {
   title: string;
@@ -63,7 +69,7 @@ interface QuickLink {
   href: string;
 }
 
-interface Course {
+interface Tasks {
   id: string;
   name: string;
   unreadContent?: number;
@@ -80,24 +86,29 @@ interface UserInfo {
 
 const navigationItems: NavigationItem[] = [
   {
-    title: "Dashboard",
+    title: "Home",
     icon: BookOpen,
-    href: "/dashboard/dashboard",
+    href: "/dashboard",
   },
   {
-    title: "Courses",
+    title: "Events",
     icon: GraduationCap,
-    href: "/dashboard/courses",
+    href: "/dashboard/events",
   },
   {
-    title: "Assignments",
+    title: "Projects",
     icon: BookMarked,
-    href: "/dashboard/assignments",
+    href: "/dashboard/projects",
   },
   {
-    title: "Schedule",
-    icon: Calendar,
-    href: "/dashboard/schedule",
+    title: "Tasks",
+    icon: BlocksIcon,
+    href: "/dashboard/tasks",
+  },
+  {
+    title: "Student Videos",
+    icon: TvMinimalIcon,
+    href: "/dashboard/reels",
   },
   {
     title: "Achievements",
@@ -107,13 +118,13 @@ const navigationItems: NavigationItem[] = [
 ];
 
 const quickLinks: QuickLink[] = [
-  { name: "Transcript", href: "/dashboard/transcript" },
-  { name: "Resources", href: "/dashboard/resources" },
+  { name: "Create Event", href: "/dashboard/events/new" },
+  { name: "Create Project", href: "/dashboard/projects/new" },
   { name: "Help Center", href: "/dashboard/help" },
-  { name: "Library", href: "/dashboard/library" },
+  { name: "People", href: "/dashboard/people" },
 ];
 
-const courses: Course[] = [
+const tasks: Tasks[] = [
   { id: "cs101", name: "Introduction to Programming", unreadContent: 2 },
   { id: "cs201", name: "Data Structures" },
   { id: "math240", name: "Linear Algebra" },
@@ -160,7 +171,7 @@ export function SidebarProvider({ children }: SidebarProviderProps): JSX.Element
 // Sidebar content component that can be shared between mobile and desktop
 export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Element {
   const currentPath = usePathname();
-  const [openSection, setOpenSection] = useState<string>("courses");
+  const [openSection, setOpenSection] = useState<string>("tasks");
   
   return (
     <div className="flex flex-col h-full">
@@ -211,6 +222,20 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
                     }`}
                   >
                     <item.icon className="h-4 w-4" />
+                    {
+                      item?.href?.startsWith(`/dashboard/tasks`) && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Lock xlinkTitle={`Private`} size={10} className={` text-xs opacity-[.6]`}/>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Your Private Page
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )
+                    }
                     <span>{item.title}</span>
                     {item.title === "Assignments" && (
                       <Badge variant="outline" className="ml-auto bg-primary/10 hover:bg-primary/20">2</Badge>
@@ -225,22 +250,22 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
 
           <div className="mt-2">
             <Collapsible 
-              open={openSection === "courses"} 
-              onOpenChange={() => setOpenSection(openSection === "courses" ? "" : "courses")}
+              open={openSection === "tasks"} 
+              onOpenChange={() => setOpenSection(openSection === "tasks" ? "" : "tasks")}
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
                 <div className="flex items-center gap-3">
-                  <BookOpen className="h-4 w-4" />
-                  <span>My Courses</span>
+                  <Blocks className="h-4 w-4" />
+                  <span>My Tasks</span>
                 </div>
-                <ChevronDown className={`h-4 w-4 transition-transform ${openSection === "courses" ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform ${openSection === "tasks" ? "rotate-180" : ""}`} />
               </CollapsibleTrigger>
               <CollapsibleContent className="pl-10 pr-3 py-1">
                 <ul className="space-y-1">
-                  {courses.map((course) => (
+                  {tasks.map((course) => (
                     <li key={course.id}>
                       <Link 
-                        href={`/courses/${course.id}`}
+                        href={`/tasks/${course.id}`}
                         className="flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-muted"
                         onClick={onClose}
                       >

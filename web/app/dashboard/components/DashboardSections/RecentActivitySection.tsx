@@ -69,7 +69,7 @@ const getStatusColor = (status?: ActivityItem['status']) => {
 
 export const RecentActivitySection = () => {
   return (
-    <Card>
+    <Card className='flex_grid'>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Activity className="h-5 w-5" />

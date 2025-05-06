@@ -485,6 +485,7 @@ img {
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
+
 @media screen and (max-width: 767px) {
   .grid_bx {
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
@@ -697,4 +698,17 @@ img {
   100% {
       transform: rotate(360deg);
   }
+}
+
+.grid_set {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex_grid {
+  flex: 1 1 15rem;
+  /* border-radius: 0 !important;
+  box-shadow: none !important;
+  background:transparent !important; */
+  min-width: fit-content;
 }

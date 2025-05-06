@@ -3,7 +3,7 @@ import VerifyToken from "../PageAuth/Action/VerifyToken"
 import { getClientIP } from "./SetToken"
 import db from '@/app/Database/Supabase/Base1'
 
-const IsAuth = async (): Promise<boolean|object> => {
+const IsAuth = async (sendData?: boolean): Promise<boolean|object> => {
   try {
     let c = await cookies()
     let h = await headers()
@@ -18,7 +18,7 @@ const IsAuth = async (): Promise<boolean|object> => {
     let vt = await VerifyToken(xs, ky, true)
     if(!vt) return false;
     // 
-    let { data, error } = await db.from('users').select(`*`).eq(`user_id`, c_usr).eq(`xs`, vt?.data).maybeSingle()
+    let { data, error } = await db.from('users').select(`user_id, email, id, firstname, name, lastname, joinedAt`).eq(`user_id`, c_usr).eq(`xs`, vt?.data).maybeSingle()
     if(error) {
       c.delete(`xs`)
       c.delete(`c_usr`)
@@ -31,7 +31,7 @@ const IsAuth = async (): Promise<boolean|object> => {
     };
     // 
 
-    return true;
+    return sendData ? data : true;
   }
   catch {
     return false
