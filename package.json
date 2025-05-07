@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@types/nprogress": "^0.2.3",
     "chart.js": "^4.4.9",
     "cookie-js": "^0.0.1",
+    "nprogress": "^0.2.0",
     "react-chartjs-2": "^5.3.0",
     "recharts": "^2.15.3",
     "uuid": "^11.1.0"
