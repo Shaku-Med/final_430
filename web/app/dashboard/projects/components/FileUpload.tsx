@@ -115,6 +115,7 @@ export function FileUpload({
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileName', file.name);
+      formData.append('id', fileId);
 
       const response = await fetch('https://fluffy-trout-jp9gq54qr4xhq97x-3000.app.github.dev/upload', {
         method: 'POST',
