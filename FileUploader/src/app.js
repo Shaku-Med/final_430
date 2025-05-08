@@ -40,8 +40,13 @@ const securityHeaders = (req, res, next) => {
     next();
 };
 
-app.use(bodyParser.json({ limit: 10000000000000 }));
-app.use(bodyParser.urlencoded({ limit: 100000000000000, extended: true }))
+app.use(bodyParser.json({
+    limit: '200mb'
+}));
+app.use(bodyParser.urlencoded({
+    limit: '200mb',
+    extended: true
+}));
 
 app.use(cors(corsOptions));
 app.use(securityHeaders);
