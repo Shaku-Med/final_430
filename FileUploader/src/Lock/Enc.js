@@ -1,6 +1,6 @@
-import crypto from 'crypto';
+const crypto = require('crypto');
 
-export function encrypt(data, key) {
+function encrypt(data, key) {
   try {
     const salt = crypto.randomBytes(16);
     const derivedKey = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
@@ -18,12 +18,13 @@ export function encrypt(data, key) {
       encryptedData
     ]).toString('base64');
     return result;
-  } catch {
+  } catch (error) {
+    console.error('Encryption error:', error);
     return null;
   }
 }
 
-export function decrypt(encryptedText, key) {
+function decrypt(encryptedText, key) {
   try {
     const encryptedBuffer = Buffer.from(encryptedText, 'base64');
     const salt = encryptedBuffer.subarray(0, 16);
@@ -38,7 +39,13 @@ export function decrypt(encryptedText, key) {
       decipher.final()
     ]);
     return decrypted.toString('utf8');
-  } catch {
+  } catch (error) {
+    console.error('Decryption error:', error);
     return null;
   }
 }
+
+module.exports = {
+  encrypt,
+  decrypt
+};

@@ -11,6 +11,9 @@ const AllRoutes = require('./routes/AllRoutes');
 const app = express();
 const PORT = process.env.PORT || 8443;
 
+// Trust proxy to handle X-Forwarded-For headers correctly
+app.set('trust proxy', 1);
+
 initializeFirebase();
 
 const limiter = rateLimit({
