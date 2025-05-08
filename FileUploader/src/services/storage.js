@@ -2,14 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const { admin } = require('../config/firebase');
 
-const uploadToFirebase = async (outputDir) => {
+const uploadToFirebase = async (outputDir, body) => {
     const bucket = admin.storage().bucket();
     const files = fs.readdirSync(outputDir);
     
     const uploadPromises = files.map(async (file) => {
         const filePath = path.join(outputDir, file);
-        console.log(file)
-        const destination = `hls/${new Date().toLocaleDateString().split('-').join('_')}/${file}`;
+        const destination = `hls/${new Date().toDateString().split('-').join('_')}/${body?.id}/${file}`;
         
         await bucket.upload(filePath, {
             destination,

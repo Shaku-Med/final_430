@@ -7,7 +7,7 @@ const uploadRoutes = require('./routes/upload');
 const errorHandler = require('./middleware/error');
 const ssrfProtection = require('./middleware/BlacklistIp/ssrfProtection');
 const AllRoutes = require('./routes/AllRoutes');
-
+const bodyParser = require('body-parser')
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -40,9 +40,12 @@ const securityHeaders = (req, res, next) => {
     next();
 };
 
+app.use(bodyParser.json({ limit: 10000000000000 }));
+app.use(bodyParser.urlencoded({ limit: 100000000000000, extended: true }))
+
 app.use(cors(corsOptions));
 app.use(securityHeaders);
-app.use(express.json());
+// 
 app.use(limiter);
 app.use(ssrfProtection);
 // I'm paying for this API, so I'm going to protect it from all kinds of misuse and attacks.
