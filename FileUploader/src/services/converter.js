@@ -22,6 +22,8 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                     return reject(new Error(`Failed to probe input file: ${err.message}`));
                 }
 
+                console.log('Input file metadata:', JSON.stringify(metadata, null, 2));
+
                 // Check if the input is a valid video file
                 if (!metadata.streams || !metadata.streams.some(stream => stream.codec_type === 'video')) {
                     fs.unlinkSync(tempInputPath);
@@ -35,10 +37,18 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                     return reject(new Error('No video stream found in input file'));
                 }
 
-                // Calculate appropriate bitrate based on resolution
+                // Log video stream details
+                console.log('Video stream details:', JSON.stringify(videoStream, null, 2));
+
+                // Use more conservative encoding parameters
                 const width = videoStream.width || 1280;
                 const height = videoStream.height || 720;
-                const targetBitrate = Math.min(2000, Math.max(1000, Math.floor((width * height * 30) / 1000)));
+                const fps = videoStream.r_frame_rate ? eval(videoStream.r_frame_rate) : 30;
+                
+                // Calculate bitrate based on resolution and fps
+                const targetBitrate = Math.min(1500, Math.max(800, Math.floor((width * height * fps) / 2000)));
+
+                console.log(`Encoding parameters: width=${width}, height=${height}, fps=${fps}, bitrate=${targetBitrate}k`);
 
                 ffmpeg(tempInputPath)
                     .outputOptions([
@@ -55,7 +65,12 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                         `-maxrate ${targetBitrate}k`,
                         `-bufsize ${targetBitrate * 2}k`,
                         '-preset veryfast',
-                        '-movflags +faststart'
+                        '-movflags +faststart',
+                        '-pix_fmt yuv420p',  // Ensure compatible pixel format
+                        '-g 30',             // Keyframe interval
+                        '-sc_threshold 0',   // Scene change threshold
+                        '-keyint_min 30',    // Minimum keyframe interval
+                        '-r 30'              // Force output frame rate
                     ])
                     .output(path.join(tempOutputPath, 'stream.m3u8'))
                     .on('start', (commandLine) => {
@@ -72,6 +87,7 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                     .on('error', (err) => {
                         // Clean up input file
                         fs.unlinkSync(tempInputPath);
+                        console.error('FFmpeg error details:', err);
                         reject(new Error(`FFmpeg conversion failed: ${err.message}`));
                     })
                     .run();
@@ -82,6 +98,7 @@ const convertToHLS = async (inputBuffer, outputDir) => {
         if (fs.existsSync(tempInputPath)) {
             fs.unlinkSync(tempInputPath);
         }
+        console.error('Conversion error:', error);
         throw error;
     }
 };
