@@ -40,17 +40,21 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                 // Log video stream details
                 console.log('Video stream details:', JSON.stringify(videoStream, null, 2));
 
-                // Use more conservative encoding parameters
+                // Get audio stream information
+                const audioStream = metadata.streams.find(stream => stream.codec_type === 'audio');
+                const hasAudio = !!audioStream;
+
+                // Use more reliable encoding parameters
                 const width = videoStream.width || 1280;
                 const height = videoStream.height || 720;
                 const fps = videoStream.r_frame_rate ? eval(videoStream.r_frame_rate) : 30;
                 
                 // Calculate bitrate based on resolution and fps
-                const targetBitrate = Math.min(1500, Math.max(800, Math.floor((width * height * fps) / 2000)));
+                const targetBitrate = Math.min(2000, Math.max(1000, Math.floor((width * height * fps) / 1500)));
 
-                console.log(`Encoding parameters: width=${width}, height=${height}, fps=${fps}, bitrate=${targetBitrate}k`);
+                console.log(`Encoding parameters: width=${width}, height=${height}, fps=${fps}, bitrate=${targetBitrate}k, hasAudio=${hasAudio}`);
 
-                ffmpeg(tempInputPath)
+                const command = ffmpeg(tempInputPath)
                     .outputOptions([
                         '-profile:v baseline',
                         '-level 3.0',
@@ -59,19 +63,29 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                         '-hls_list_size 0',
                         '-f hls',
                         '-c:v libx264',
+                        '-preset medium',  // Changed from veryfast to medium for better quality
+                        '-pix_fmt yuv420p',
+                        '-g 30',
+                        '-sc_threshold 0',
+                        '-keyint_min 30',
+                        '-r 30',
+                        '-b:v ' + targetBitrate + 'k',
+                        '-maxrate ' + targetBitrate + 'k',
+                        '-bufsize ' + (targetBitrate * 2) + 'k',
+                        '-movflags +faststart'
+                    ]);
+
+                // Add audio encoding options only if audio stream exists
+                if (hasAudio) {
+                    command.outputOptions([
                         '-c:a aac',
                         '-b:a 128k',
-                        `-b:v ${targetBitrate}k`,
-                        `-maxrate ${targetBitrate}k`,
-                        `-bufsize ${targetBitrate * 2}k`,
-                        '-preset veryfast',
-                        '-movflags +faststart',
-                        '-pix_fmt yuv420p',  // Ensure compatible pixel format
-                        '-g 30',             // Keyframe interval
-                        '-sc_threshold 0',   // Scene change threshold
-                        '-keyint_min 30',    // Minimum keyframe interval
-                        '-r 30'              // Force output frame rate
-                    ])
+                        '-ar 44100',
+                        '-ac 2'
+                    ]);
+                }
+
+                command
                     .output(path.join(tempOutputPath, 'stream.m3u8'))
                     .on('start', (commandLine) => {
                         console.log('FFmpeg started:', commandLine);
@@ -80,6 +94,13 @@ const convertToHLS = async (inputBuffer, outputDir) => {
                         console.log('Processing: ' + Math.floor(progress.percent) + '% done');
                     })
                     .on('end', () => {
+                        // Verify the output files exist and are not empty
+                        const m3u8Path = path.join(tempOutputPath, 'stream.m3u8');
+                        if (!fs.existsSync(m3u8Path) || fs.statSync(m3u8Path).size === 0) {
+                            fs.unlinkSync(tempInputPath);
+                            return reject(new Error('Output file is empty or missing'));
+                        }
+
                         // Clean up input file
                         fs.unlinkSync(tempInputPath);
                         resolve(tempOutputPath);
