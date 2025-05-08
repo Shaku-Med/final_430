@@ -9,9 +9,11 @@ const ssrfProtection = require('./middleware/BlacklistIp/ssrfProtection');
 const AllRoutes = require('./routes/AllRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 8443;
+const PORT = process.env.PORT || 3000;
 
 initializeFirebase();
+
+app.set('trust proxy', 1);
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
