@@ -12,14 +12,22 @@ router.post('/', upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const outputDir = await convertToHLS(req.file.buffer, os.tmpdir());
-        const urls = await uploadToFirebase(outputDir, req.body);
-        
-        fs.rmSync(outputDir, { recursive: true, force: true });
+        let urls;
+        const isMediaFile = req.file.mimetype.startsWith('video/') || req.file.mimetype.startsWith('audio/');
+
+        if (isMediaFile) {
+            // Convert and upload media files
+            const outputDir = await convertToHLS(req.file.buffer, os.tmpdir());
+            urls = await uploadToFirebase(outputDir, req.body);
+            fs.rmSync(outputDir, { recursive: true, force: true });
+        } else {
+            // Directly upload non-media files
+            urls = await uploadToFirebase(req.file.buffer, req.body);
+        }
         
         res.json({
             success: true,
-            message: 'File uploaded and converted successfully',
+            message: 'File uploaded successfully',
             urls
         });
     } catch (error) {
