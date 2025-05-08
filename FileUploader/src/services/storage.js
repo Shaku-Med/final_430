@@ -8,7 +8,7 @@ const uploadToFirebase = async (outputDir) => {
     
     const uploadPromises = files.map(async (file) => {
         const filePath = path.join(outputDir, file);
-        const destination = `hls/${Date.now()}/${file}`;
+        const destination = `hls/${new Date().getDate().toString().split('-').join('_')}/${file}`;
         
         await bucket.upload(filePath, {
             destination,
