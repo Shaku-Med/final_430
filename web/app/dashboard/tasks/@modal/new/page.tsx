@@ -6,22 +6,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Calendar as CalendarIcon, Lock, Unlock, Upload } from "lucide-react";
-import { format } from "date-fns";
+import { X, Lock, Unlock, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "../../../projects/components/FileUpload";
 
+interface FileChunk {
+  id: string;
+  blob: Blob;
+  name: string;
+  index: number;
+  totalChunks: number;
+  objectUrl: string;
+  progress: number;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  error?: string;
+  path?: string;
+  url?: string;
+}
+
 interface UploadedFile {
   id: string;
-  file: globalThis.File;
+  file: File;
   progress: number;
-  status: 'uploading' | 'completed' | 'error';
+  status: 'chunking' | 'uploading' | 'completed' | 'error';
   error?: string;
   customName?: string;
+  chunks: FileChunk[];
+  chunkingProgress?: number;
+  path?: string;
+  url?: string;
 }
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
@@ -32,7 +47,8 @@ export default function NewTaskModal() {
     title: "",
     description: "",
     privacy: "private",
-    dueDate: null as Date | null,
+    dueDate: "",
+    dueTime: "",
     priority: "medium",
     tags: [] as string[],
     assignee: "",
@@ -43,6 +59,11 @@ export default function NewTaskModal() {
   const handleCreateTask = () => {
     if (!newTask.title.trim()) return;
 
+    let dueDateTime = null;
+    if (newTask.dueDate) {
+      dueDateTime = new Date(`${newTask.dueDate}T${newTask.dueTime || '00:00'}`);
+    }
+
     const task = {
       id: Date.now().toString(),
       title: newTask.title,
@@ -50,7 +71,7 @@ export default function NewTaskModal() {
       status: "pending",
       createdAt: new Date(),
       privacy: newTask.privacy,
-      dueDate: newTask.dueDate,
+      dueDate: dueDateTime,
       priority: newTask.priority,
       tags: newTask.tags,
       assignee: newTask.assignee,
@@ -89,7 +110,7 @@ export default function NewTaskModal() {
 
   return (
     <Dialog open onOpenChange={() => router.back()}>
-      <DialogContent className="min-w-fit max-w-5xl">
+      <DialogContent className="min-w-fit max-w-5xl max-h-full rounded-none border-none shadow-none overflow-auto">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>
@@ -155,38 +176,30 @@ export default function NewTaskModal() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <label>Due Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !newTask.dueDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {newTask.dueDate ? format(newTask.dueDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={newTask.dueDate || undefined}
-                    onSelect={(date) => setNewTask({ ...newTask, dueDate: date || null })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Input
+                type="date"
+                value={newTask.dueDate}
+                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+              />
             </div>
 
             <div className="grid gap-2">
-              <label>Assignee</label>
+              <label>Due Time</label>
               <Input
-                value={newTask.assignee}
-                onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-                placeholder="Enter assignee name"
+                type="time"
+                value={newTask.dueTime}
+                onChange={(e) => setNewTask({ ...newTask, dueTime: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="grid gap-2">
+            <label>Assignee</label>
+            <Input
+              value={newTask.assignee}
+              onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
+              placeholder="Enter assignee name"
+            />
           </div>
 
           <div className="grid gap-2">
@@ -221,6 +234,7 @@ export default function NewTaskModal() {
                 onChange={(value) => setNewTask({ ...newTask, description: value || '' })}
                 height={300}
                 preview="edit"
+                fullscreen={false}
               />
             </div>
           </div>
@@ -241,4 +255,4 @@ export default function NewTaskModal() {
       </DialogContent>
     </Dialog>
   );
-} 
+}

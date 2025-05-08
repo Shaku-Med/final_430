@@ -3,97 +3,178 @@ import { useDropzone } from 'react-dropzone';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X, Pencil, Check } from 'lucide-react';
+import { X, Pencil, Check, RefreshCw } from 'lucide-react';
 import { FilePreviewDialog } from './FilePreviewDialog';
 import { toast } from 'sonner';
-import {motion} from 'framer-motion'
-// 
+import { motion } from 'framer-motion';
+import SetQuickToken from '@/app/account/Actions/SetQuickToken';
+import Cookies from 'js-cookie';
+
 interface UploadedFile {
   id: string;
-  file: globalThis.File;
+  file: File;
   progress: number;
   status: 'uploading' | 'completed' | 'error';
   error?: string;
   customName?: string;
+  url?: string;
+  retryCount?: number;
+  chunks: {
+    id: string;
+    blob: Blob;
+    name: string;
+    index: number;
+    totalChunks: number;
+    objectUrl: string;
+    progress: number;
+    status: 'pending' | 'uploading' | 'completed' | 'error';
+    error?: string;
+    path?: string;
+    url?: string;
+  }[];
+  chunkingProgress?: number;
+  path?: string;
 }
 
 interface FileUploadProps {
   onFilesChange: (files: UploadedFile[]) => void;
   maxFiles?: number;
-  maxSize?: number; // in bytes
+  maxSize?: number;
+  autoUpload?: boolean;
 }
 
-export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 * 1024 }: FileUploadProps) {
+export function FileUpload({
+  onFilesChange,
+  maxFiles = 15,
+  maxSize = 1024 * 1024 * 1024,
+  autoUpload = true
+}: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
 
-  const uploadFile = async (file: globalThis.File) => {
-    const id = crypto.randomUUID();
-    const uploadedFile: UploadedFile = {
-      id,
-      file,
-      progress: 0,
-      status: 'uploading',
-      customName: file.name
-    };
-
-    setUploadedFiles(prev => [...prev, uploadedFile]);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', file.name);
-      formData.append('fileId', id);
-
-      const xhr = new XMLHttpRequest();
-      
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          setUploadedFiles(prev => 
-            prev.map(f => 
-              f.id === id ? { ...f, progress } : f
-            )
-          );
+  const uploadFile = async (file: File, existingFileId?: string) => {
+    const fileId = existingFileId || crypto.randomUUID();
+    
+    if (!existingFileId) {
+      setUploadedFiles(prev => [
+        ...prev,
+        {
+          id: fileId,
+          file,
+          progress: 0,
+          status: 'uploading',
+          customName: file.name,
+          chunks: [],
+          chunkingProgress: 0
         }
-      });
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          setUploadedFiles(prev => 
-            prev.map(f => 
-              f.id === id ? { ...f, status: 'completed' } : f
-            )
-          );
-          onFilesChange(uploadedFiles.filter(f => f.status === 'completed'));
-        } else {
-          throw new Error('Upload failed');
-        }
-      };
-
-      xhr.onerror = () => {
-        setUploadedFiles(prev => 
-          prev.map(f => 
-            f.id === id ? { ...f, status: 'error', error: 'Upload failed' } : f
-          )
-        );
-      };
-
-      xhr.open('POST', '/api/upload');
-      xhr.send(formData);
-
-    } catch (error) {
-      setUploadedFiles(prev => 
-        prev.map(f => 
-          f.id === id ? { ...f, status: 'error', error: 'Upload failed' } : f
+      ]);
+    } else {
+      setUploadedFiles(prev =>
+        prev.map(f =>
+          f.id === fileId ? {
+            ...f,
+            status: 'uploading',
+            progress: 0,
+            error: undefined,
+            retryCount: (f.retryCount || 0) + 1
+          } : f
         )
       );
     }
+
+    try {
+      let q = await SetQuickToken(`file_token`)
+      if(!q) {
+        toast.error(`Failed to upload file.`)
+        setUploadedFiles(prev =>
+          prev.map(f =>
+            f.id === fileId ? { ...f, status: 'error', error: 'Failed to upload file' } : f
+          )
+        );
+        return;
+      }
+      let f = await fetch(`/api/upload`, {
+        headers: new Headers({
+          'Authorization': Cookies.get(`session`) || ''
+        })
+      })
+      if(!f.ok) {
+        toast.error(`Failed to complete your upload.`)
+        setUploadedFiles(prev =>
+          prev.map(f =>
+            f.id === fileId ? { ...f, status: 'error', error: 'Failed to upload file' } : f
+          )
+        );
+        return;
+      }
+
+      let d = await f.json()
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', file.name);
+
+      const response = await fetch('http://localhost:8443/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `${d?.token}`,
+          'access-token': `${d?.uploadToken}`
+        }
+      });
+
+      // Track upload progress
+      const reader = response.body?.getReader();
+      const contentLength = +response.headers.get('Content-Length')!;
+
+      let receivedLength = 0;
+      while(true) {
+        const {done, value} = await reader!.read();
+        
+        if (done) break;
+        
+        receivedLength += value.length;
+        const progress = Math.round((receivedLength / contentLength) * 100);
+        
+        setUploadedFiles(prev =>
+          prev.map(f =>
+            f.id === fileId ? { ...f, progress } : f
+          )
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUploadedFiles(prev =>
+        prev.map(f =>
+          f.id === fileId ? {
+            ...f,
+            status: 'completed',
+            progress: 100,
+            url: data.url
+          } : f
+        )
+      );
+      onFilesChange(uploadedFiles.filter(f => f.status === 'completed'));
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setUploadedFiles(prev =>
+        prev.map(f =>
+          f.id === fileId ? { ...f, status: 'error', error: 'Failed to upload file' } : f
+        )
+      );
+      toast.error(`Failed to upload ${file.name}`);
+    }
   };
 
-  const onDrop = useCallback((acceptedFiles: globalThis.File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const validFiles = acceptedFiles.filter(file => {
       if (file.size > maxSize) {
         toast.error(`File ${file.name} exceeds the size limit`);
@@ -107,15 +188,20 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
       return;
     }
 
-    setIsUploading(true);
-    validFiles.forEach(uploadFile);
-    setIsUploading(false);
-  }, [maxFiles, maxSize, uploadedFiles]);
+    setIsProcessing(true);
+    
+    for (const file of validFiles) {
+      await uploadFile(file);
+    }
+    
+    setIsProcessing(false);
+  }, [maxFiles, maxSize, uploadedFiles, autoUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles,
-    maxSize
+    maxSize,
+    disabled: isProcessing
   });
 
   const removeFile = (id: string) => {
@@ -129,8 +215,8 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
   };
 
   const saveEdit = (id: string) => {
-    setUploadedFiles(prev => 
-      prev.map(f => 
+    setUploadedFiles(prev =>
+      prev.map(f =>
         f.id === id ? { ...f, customName: editName } : f
       )
     );
@@ -141,19 +227,28 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
     setEditingFileId(null);
   };
 
+  const retryUpload = async (fileId: string) => {
+    const fileToRetry = uploadedFiles.find(f => f.id === fileId);
+    if (!fileToRetry) return;
+
+    await uploadFile(fileToRetry.file, fileId);
+  };
+
   return (
     <div className="space-y-4">
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary'
-        }`}
+        } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <input {...getInputProps()} />
         <p className="text-sm text-muted-foreground">
-          {isDragActive
-            ? 'Drop the files here'
-            : 'Drag & drop files here, or click to select files'}
+          {isProcessing
+            ? 'Processing files...'
+            : isDragActive
+              ? 'Drop the files here'
+              : 'Drag & drop files here, or click to select files'}
         </p>
       </div>
 
@@ -165,7 +260,7 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className={`space-y-1 px-4 py-2 overflow-hidden hover:bg-muted/50 ${key < 1 ? uploadedFiles.length === 1 ? ` rounded-lg` : ` rounded-t-lg` : key === uploadedFiles.length - 1 ? ` rounded-b-lg` : ``} border`}
+            className={`space-y-2 px-4 py-3 overflow-hidden hover:bg-muted/50 ${key < 1 ? uploadedFiles.length === 1 ? ` rounded-lg` : ` rounded-t-lg` : key === uploadedFiles.length - 1 ? ` rounded-b-lg` : ``} border`}
           >
             <div className="flex items-center gap-2">
               <FilePreviewDialog
@@ -209,28 +304,51 @@ export function FileUpload({ onFilesChange, maxFiles = 15, maxSize = 200 * 1024 
                     </Button>
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
+                <div className="flex items-center text-xs text-muted-foreground gap-2">
+                  <span>{(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeFile(uploadedFile.id)}
-                disabled={uploadedFile.status === 'uploading'}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeFile(uploadedFile.id)}
+                  disabled={uploadedFile.status === 'uploading'}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            {uploadedFile.status === 'uploading' && (
+            
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">
+                  {uploadedFile.status === 'error' ? 'Failed' : 
+                   uploadedFile.status === 'completed' ? 'Complete' : 
+                   `${Math.round(uploadedFile.progress)}%`}
+                </span>
+              </div>
               <Progress value={uploadedFile.progress} />
-            )}
+            </div>
+            
             {uploadedFile.status === 'error' && (
-              <p className="text-sm text-destructive">{uploadedFile.error}</p>
+              <div className="flex items-center gap-2 text-destructive text-sm">
+                <p>{uploadedFile.error}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => retryUpload(uploadedFile.id)}
+                  className="text-primary hover:text-primary/80"
+                >
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                  Retry
+                </Button>
+              </div>
             )}
           </motion.div>
         ))}
       </div>
     </div>
   );
-} 
+}

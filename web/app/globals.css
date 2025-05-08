@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @plugin "tailwindcss-animate";
 
 /* @custom-variant dark (&:is(.dark *)) */
@@ -221,8 +223,6 @@
   overflow-x: hidden;
 } */
 
-
-
 .home_p {
   position: fixed !important;
   padding: 20px !important;
@@ -256,7 +256,7 @@
     opacity: 1;
     visibility: visible !important;
   }
-  
+
 }
 
 .reset {
@@ -268,10 +268,7 @@ img {
   pointer-events: none !important;
 }
 
-
 /*  */
-
-
 
 .container_chat {
   word-wrap: break-word;
@@ -348,7 +345,6 @@ img {
   -webkit-user-select: none !important;
 }
 
-
 @supports (scrollbar-color: auto) {
   * {
       scrollbar-color: var(--muted) var(--background);
@@ -414,7 +410,6 @@ img {
   -ms-word-wrap: break-word;
 }
 
-
 .chata a {
   color: #168dfd !important;
   text-decoration: underline;
@@ -424,7 +419,6 @@ img {
 .chata a:visited{
   color: #99ff00 !important;
 }
-
 
 /*  */
 
@@ -465,7 +459,6 @@ img {
   }
 }
 
-
 .player {
   object-fit: contain !important;
 }
@@ -484,7 +477,6 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
-
 
 @media screen and (max-width: 767px) {
   .grid_bx {
@@ -617,8 +609,6 @@ img {
   display: none !important;
 }
 
-
-
 .player_view video:not(.nov) {
   pointer-events: none !important;
 }
@@ -655,7 +645,6 @@ img {
   user-select: text !important;
   -webkit-user-select: text !important;
 }
-
 
 /* BAR */
 
@@ -711,4 +700,15 @@ img {
   box-shadow: none !important;
   background:transparent !important; */
   min-width: fit-content;
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }

@@ -21,7 +21,11 @@ import {
 import { NotificationItem } from './types';
 import { initialNotifications } from './data';
 
-export const NotificationsDropdown: React.FC = () => {
+interface NotificationsDropdownProps {
+  children: React.ReactNode;
+}
+
+export function NotificationsDropdown({ children }: NotificationsDropdownProps) {
   const [userNotifications, setUserNotifications] = useState<NotificationItem[]>(initialNotifications);
   
   const unreadNotifications = userNotifications.filter(notification => !notification.read).length;
@@ -64,17 +68,21 @@ export const NotificationsDropdown: React.FC = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-4 w-4" />
-                {unreadNotifications > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full"
-                  >
-                    {unreadNotifications}
-                  </Badge>
-                )}
-              </Button>
+              {
+                children ? children : (
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-4 w-4" />
+                    {unreadNotifications > 0 && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full"
+                      >
+                        {unreadNotifications}
+                      </Badge>
+                    )}
+                  </Button>
+                )
+              }
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent>
@@ -145,4 +153,4 @@ export const NotificationsDropdown: React.FC = () => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}

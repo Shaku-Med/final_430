@@ -19,8 +19,25 @@ interface UploadedFile {
   id: string;
   file: globalThis.File;
   progress: number;
-  status: 'uploading' | 'completed' | 'error';
+  status: 'chunking' | 'uploading' | 'completed' | 'error';
   error?: string;
+  customName?: string;
+  chunks: {
+    id: string;
+    blob: Blob;
+    name: string;
+    index: number;
+    totalChunks: number;
+    objectUrl: string;
+    progress: number;
+    status: 'pending' | 'uploading' | 'completed' | 'error';
+    error?: string;
+    path?: string;
+    url?: string;
+  }[];
+  chunkingProgress?: number;
+  path?: string;
+  url?: string;
 }
 
 export default function NewEventPage() {

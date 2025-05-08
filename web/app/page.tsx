@@ -1,10 +1,4 @@
 'use client'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { SearchIcon, CalendarIcon, TrendingUpIcon, BookmarkIcon, LanguagesIcon } from "lucide-react";
-import { useState } from "react";
 import Nav from "./Home/Nav/Nav";
 import Hero from "./Home/Hero/Hero";
 import KFeatures from "./Home/Features/KFeatures";

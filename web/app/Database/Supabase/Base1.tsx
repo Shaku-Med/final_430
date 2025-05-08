@@ -1,30 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SECRETE || '';
+const supabaseUrl: string = process.env.SUPABASE_URL || '';
+const supabaseKey: string = process.env.SUPABASE_SECRETE || '';
 
-let supabase;
+let db: SupabaseClient;
 
 try {
-    if (!supabaseUrl || !supabaseKey) {
-        console.warn('Supabase credentials are missing. Some features may not work properly.');
-    }
-    supabase = createClient(supabaseUrl, supabaseKey);
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn('Supabase credentials are missing. Some features may not work properly.');
+  }
+  db = createClient(supabaseUrl, supabaseKey);
 } catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-    // Create a mock client that will fail gracefully
-    supabase = {
-        from: () => ({
-            select: () => Promise.reject(new Error('Supabase client not initialized')),
-            insert: () => Promise.reject(new Error('Supabase client not initialized')),
-            update: () => Promise.reject(new Error('Supabase client not initialized')),
-            delete: () => Promise.reject(new Error('Supabase client not initialized')),
-        }),
-        auth: {
-            signIn: () => Promise.reject(new Error('Supabase client not initialized')),
-            signOut: () => Promise.reject(new Error('Supabase client not initialized')),
-        },
-    };
+  console.error('Failed to initialize Supabase client:', error);
+  db = {
+    from: () => ({
+      select: () => Promise.reject(new Error('Supabase client not initialized')),
+      insert: () => Promise.reject(new Error('Supabase client not initialized')),
+      update: () => Promise.reject(new Error('Supabase client not initialized')),
+      delete: () => Promise.reject(new Error('Supabase client not initialized')),
+      order: () => ({
+        limit: () => Promise.reject(new Error('Supabase client not initialized')),
+      }),
+    }),
+    auth: {
+      signIn: () => Promise.reject(new Error('Supabase client not initialized')),
+      signOut: () => Promise.reject(new Error('Supabase client not initialized')),
+    },
+  } as unknown as SupabaseClient;
 }
 
-export default supabase;
+export default db;

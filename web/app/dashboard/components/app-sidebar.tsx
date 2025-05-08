@@ -57,6 +57,7 @@ import Logo from "@/app/Home/Icons/Logo";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { useIsMobile } from "../hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { NotificationsDropdown } from "./DashboardTopbar/notification";
 
 interface NavigationItem {
   title: string;
@@ -300,13 +301,15 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
       </div>
 
       <div className="border-t p-4 bg-card">
-        <Button variant="outline" size="sm" className="w-full flex items-center gap-2">
-          <Bell className="h-4 w-4" />
-          <span>Notifications</span>
-          {user.notifications > 0 && (
-            <Badge variant="destructive" className="ml-auto">{user.notifications}</Badge>
-          )}
-        </Button>
+        <NotificationsDropdown>
+          <Button variant="outline" size="sm" className="w-full flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span>Notifications</span>
+            {user.notifications > 0 && (
+              <Badge variant="destructive" className="ml-auto">{user.notifications}</Badge>
+            )}
+          </Button>
+        </NotificationsDropdown>
       </div>
 
       <div className="border-t p-3 bg-card">

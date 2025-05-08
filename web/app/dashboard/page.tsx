@@ -57,11 +57,6 @@ export default async function DashboardPage() {
   }
 
   try {
-    // First try to get personalized recommendations for videos and projects only
-    let f = await fetch(`https://fluffy-trout-jp9gq54qr4xhq97x-8000.app.github.dev/recommendations/${user?.user_id}`)
-    recommendations = await f.json()
-
-    // Fetch upcoming events from database
     const { data: upcomingEvents, error: eventsError } = await db
       .from('events')
       .select('*')
@@ -78,51 +73,41 @@ export default async function DashboardPage() {
       }))
     }
 
-    // If recommendations are empty, fetch trending content for videos and projects
-    if (!recommendations || Object.keys(recommendations).length === 0) {
-      const [videosRes, projectsRes] = await Promise.all([
-        fetch('https://fluffy-trout-jp9gq54qr4xhq97x-8000.app.github.dev/trending/video'),
-        fetch('https://fluffy-trout-jp9gq54qr4xhq97x-8000.app.github.dev/trending/project')
-      ])
+    const { data: recentVideos, error: videosError } = await db
+      .from('videos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10)
 
-      trendingContent = {
-        ...trendingContent,
-        videos: await videosRes.json(),
-        projects: await projectsRes.json()
-      }
+    if (!videosError && recentVideos) {
+      trendingContent.videos = recentVideos.map(video => ({
+        entity_id: video.id,
+        title: video.title,
+        description: video.description,
+        total_engagement: video.total_engagement || 0
+      }))
+    }
 
-      // If trending content is empty, fetch most recent content from database
-      if (!trendingContent.videos.length) {
-        const { data: recentVideos, error: videosError } = await db
-          .from('videos')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10)
-        if (!videosError) {
-          trendingContent.videos = recentVideos.map(video => ({
-            entity_id: video.id,
-            title: video.title,
-            description: video.description,
-            total_engagement: video.total_engagement || 0
-          }))
-        }
-      }
+    const { data: recentProjects, error: projectsError } = await db
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10)
 
-      if (!trendingContent.projects.length) {
-        const { data: recentProjects, error: projectsError } = await db
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10)
-        if (!projectsError) {
-          trendingContent.projects = recentProjects.map(project => ({
-            entity_id: project.id,
-            title: project.title,
-            description: project.description,
-            total_engagement: project.total_engagement || 0
-          }))
-        }
-      }
+    if (!projectsError && recentProjects) {
+      trendingContent.projects = recentProjects.map(project => ({
+        entity_id: project.id,
+        title: project.title,
+        description: project.description,
+        total_engagement: project.total_engagement || 0
+      }))
+    }
+
+    try {
+      const f = await fetch(`https://fluffy-trout-jp9gq54qr4xhq97x-8000.app.github.dev/recommendations/${user?.user_id}`)
+      recommendations = await f.json()
+    } catch (error) {
+      // console.error('Failed to fetch recommendations:', error)
     }
 
     return (
@@ -143,7 +128,14 @@ export default async function DashboardPage() {
     )
   }
   catch (error) {
-    console.error('Error fetching dashboard data:', error)
-    return "Something went wrong. It is our fault. Please reload your page to see if you get the fix."
+    return (
+      <>
+        <div className={` flex items-center justify-center h-full w-full`}>
+          <h1 className={`text-2xl font-bold text-muted-foreground`}>
+            Something went wrong. 
+          </h1>
+        </div>
+      </>
+    )
   }
 }

@@ -35,11 +35,13 @@ export default async function Layout({
   }
   return (
     <>
-    <Script defer>
+    <script defer>
       {`if (typeof window !== 'undefined') {
-        window.document.cookie = '_athk_=${token}';
+        window.addEventListener('DOMContentLoaded', () => {
+          window.document.cookie = '_athk_=${token}';
+        })
       }`}
-    </Script>
+    </script>
     {/*  */}
     <AnimatedBackground/>
      {children}

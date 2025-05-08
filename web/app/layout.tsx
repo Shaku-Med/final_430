@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cookies, headers } from "next/headers";
 import { Toaster } from "sonner";
+import IsAuth from "./Auth/IsAuth/IsAuth";
+import SetToken from "./Auth/IsAuth/SetToken";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +27,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let h = await headers()
-  let c = await cookies()
-  // 
+  let usr = await IsAuth()
+  let sign_inToken;
   let theme: any = `system`
+  // 
+  if(usr){
+    let k: string[] = [`${process.env.PASS1}`, `${process.env.TOKEN2}`]
+    sign_inToken = await SetToken({
+      expiresIn: '1h',
+      algorithm: 'HS512'
+    }, k)
+    
+  }
   return (
     <html lang="en">
       <body
@@ -36,6 +47,21 @@ export default async function RootLayout({
         <Toaster closeButton duration={20000} richColors position={`bottom-center`} theme={theme}/>
         {children}
       </body>
+      {
+        (usr && sign_inToken) && (
+          <>
+           <Script>
+             {
+              `
+              window.addEventListener('load', () => {
+                window.document.cookie = 'session=${sign_inToken}';
+              })
+              `
+             }
+           </Script>
+          </>
+        )
+      }
     </html>
   );
 }
