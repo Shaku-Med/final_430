@@ -106,15 +106,18 @@ export async function GET() {
             headers: {
                 'Content-Type': 'application/json',
                 'referer': `${process.env.FILE_API}/`,
-                'user-agent': `${au}`
+                'user-agent': `${au}`,
             },
+            cache: 'no-cache',
             body: JSON.stringify({
                 token: d
             })
         })
+
+        console.log(f.statusText)
         
         if(!f.ok){
-          return await ReturnResponse(401, `Access Denied.`)
+          return await ReturnResponse(f.status, `Access Denied.`)
         }
 
         return await ReturnResponse(200, 'Token verified successfully.', {...await f.json()}, true)

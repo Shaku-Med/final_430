@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getClientIP } from "./app/Auth/IsAuth/SetToken";
+// import { getClientIP } from "./app/Auth/IsAuth/SetToken";
 
 const RATE_LIMIT = 200;
 const IP_REQUESTS = new Map<string, { count: number; lastRequest: number }>();
@@ -7,12 +7,12 @@ const IP_REQUESTS = new Map<string, { count: number; lastRequest: number }>();
 export async function middleware(request: NextRequest | any) {
   try {
     const response = NextResponse.next();
-    let clientIp  = await getClientIP(request.headers)
+    // let clientIp  = await getClientIP(request.headers)
     // 
-    if(!clientIp){
-      return new NextResponse(`Access Denied!`, { status: 401 });
-    }
-    const ip = request.ip ?? clientIp ?? 'unknown';
+    // if(!clientIp){
+    //   return new NextResponse(`Access Denied!`, { status: 401 });
+    // }
+    const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? 'unknown';
     const now = Date.now();
     const requestInfo = IP_REQUESTS.get(ip) || { count: 0, lastRequest: now };
 

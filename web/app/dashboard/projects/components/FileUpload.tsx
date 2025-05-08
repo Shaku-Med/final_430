@@ -116,7 +116,7 @@ export function FileUpload({
       formData.append('file', file);
       formData.append('fileName', file.name);
 
-      const response = await fetch('http://localhost:8443/upload', {
+      const response = await fetch('https://fluffy-trout-jp9gq54qr4xhq97x-3000.app.github.dev/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
