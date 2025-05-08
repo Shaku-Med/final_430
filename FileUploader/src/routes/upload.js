@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');
 const { convertToHLS } = require('../services/converter');
-const { uploadToFirebase } = require('../services/storage');
+const { uploadHLSFiles, uploadFile } = require('../services/storage');
 const fs = require('fs');
 const os = require('os');
 
@@ -18,11 +18,19 @@ router.post('/', upload.single('file'), async (req, res) => {
         if (isMediaFile) {
             // Convert and upload media files
             const outputDir = await convertToHLS(req.file.buffer, os.tmpdir());
-            urls = await uploadToFirebase(outputDir, req.body);
+            urls = await uploadHLSFiles(outputDir, {
+                ...req.body,
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype
+            });
             fs.rmSync(outputDir, { recursive: true, force: true });
         } else {
             // Directly upload non-media files
-            urls = await uploadToFirebase(req.file.buffer, req.body);
+            urls = await uploadFile(req.file.buffer, {
+                ...req.body,
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype
+            });
         }
         
         res.json({
