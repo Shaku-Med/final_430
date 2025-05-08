@@ -90,6 +90,33 @@ class Converter {
             });
         });
     }
+
+    async convertToHLS(buffer, outputDir) {
+        return new Promise((resolve, reject) => {
+            const inputPath = path.join(outputDir, 'input.mp4');
+            fs.writeFileSync(inputPath, buffer);
+
+            const outputPath = path.join(outputDir, 'output.m3u8');
+            
+            ffmpeg(inputPath)
+                .outputOptions([
+                    '-profile:v baseline',
+                    '-level 3.0',
+                    '-start_number 0',
+                    '-hls_time 10',
+                    '-hls_list_size 0',
+                    '-f hls'
+                ])
+                .output(outputPath)
+                .on('end', () => {
+                    resolve(outputDir);
+                })
+                .on('error', (err) => {
+                    reject(new Error(`HLS conversion failed: ${err.message}`));
+                })
+                .run();
+        });
+    }
 }
 
 module.exports = new Converter();
