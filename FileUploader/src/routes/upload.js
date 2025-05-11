@@ -5,6 +5,7 @@ const { convertToHLS } = require('../services/converter');
 const { uploadHLSFiles, uploadFile } = require('../services/storage');
 const fs = require('fs');
 const os = require('os');
+const { encrypt } = require('../Lock/Enc');
 
 router.post('/', upload.single('file'), async (req, res) => {
     try {
@@ -36,7 +37,7 @@ router.post('/', upload.single('file'), async (req, res) => {
         res.json({
             success: true,
             message: 'File uploaded successfully',
-            urls
+            urls: [encrypt(JSON.stringify(urls), `${process.env.FILE_TOKEN}`)]
         });
     } catch (error) {
         console.error('Upload error:', error);

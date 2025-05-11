@@ -6,16 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
-import { ThumbnailUpload } from '../components/ThumbnailUpload'
+import { DatePicker } from '@/components/ui/date-picker'
 import { FileUpload } from '../components/FileUpload'
-import { CategorySelect } from '../components/CategorySelect'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
-import { DatePicker } from '@/components/ui/date-picker'
 import SetQuickToken from '@/app/account/Actions/SetQuickToken'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
@@ -51,34 +45,20 @@ export default function NewProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    date: new Date(),
-    startTime: '09:00',
-    endTime: '10:00',
-    status: 'upcoming',
-    thumbnail: null as File | null,
-    attachments: [] as UploadedFile[],
-    location: ''
+    startDate: new Date(),
+    endDate: new Date(),
+    status: 'planning',
+    client: '',
+    budget: '',
+    team: ''
   })
-
-  const handleFilesChange = (files: UploadedFile[]) => {
-    setFormData(prev => ({
-      ...prev,
-      attachments: files
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const isUploading = formData.attachments.some(file => file.status === 'uploading');
-    if (isUploading) {
-      toast.error('Please wait for all files to finish uploading');
-      return;
-    }
-
-    if (!formData.location) {
-      toast.error('Please enter a location for the event');
-      return;
+    if (!formData.client) {
+      toast.error('Please enter a client name')
+      return
     }
 
     setIsLoading(true)
@@ -87,56 +67,26 @@ export default function NewProjectPage() {
       const formDataToSend = new FormData()
       formDataToSend.append('title', formData.title)
       formDataToSend.append('description', formData.description)
-      formDataToSend.append('date', formData.date.toISOString())
-      formDataToSend.append('startTime', formData.startTime)
-      formDataToSend.append('endTime', formData.endTime)
+      formDataToSend.append('startDate', formData.startDate.toISOString())
+      formDataToSend.append('endDate', formData.endDate.toISOString())
       formDataToSend.append('status', formData.status)
-      formDataToSend.append('location', formData.location)
-      
-      if (formData.thumbnail) {
-        formDataToSend.append('thumbnail', formData.thumbnail)
+      formDataToSend.append('client', formData.client)
+      formDataToSend.append('budget', formData.budget)
+      formDataToSend.append('team', formData.team)
+
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        body: formDataToSend
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create project')
       }
 
-      const attachmentsData = formData.attachments.map(file => ({
-        id: file.id,
-        name: file.file.name,
-        type: file.file.type,
-        size: file.file.size
-      }))
-      formDataToSend.append('attachments', JSON.stringify(attachmentsData))
-
-      let s = await SetQuickToken(`access_token`)
-      if(!s){
-        toast.error(`Unable to create project. Reload your page and try again plz.`)
-        setTimeout(() => window.location.reload(), 2000)
-        return;
-      }
-      else {
-
-        // 
-        let getToken = await fetch(`/api/token`)
-        let token = await getToken.json()
-        if(!token?.success){
-          toast.error(`Looks like we're having troubles creating your project.`)
-          return;
-        }
-        else {
-          const response = await fetch('/api/events', {
-            method: 'POST',
-            body: formDataToSend
-          })
-    
-          if (!response.ok) {
-            throw new Error('Failed to create event')
-          }
-    
-          toast.success('Event created successfully')
-          router.push('/dashboard/events')
-        }
-        
-      }
+      toast.success('Project created successfully')
+      router.push('/dashboard/projects')
     } catch (error) {
-      toast.error('Failed to create event')
+      toast.error('Failed to create project')
     } finally {
       setIsLoading(false)
     }
@@ -144,12 +94,12 @@ export default function NewProjectPage() {
 
   return (
     <div className="container mx-auto py-8 md:px-10 px-4">
-      <h1 className="text-3xl font-bold mb-8">Create New Event</h1>
+      <h1 className="text-3xl font-bold mb-8">Create New Project</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="gap-8">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Event Title</Label>
+              <Label htmlFor="title">Project Title</Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -167,39 +117,45 @@ export default function NewProjectPage() {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Event Date</Label>
-              <DatePicker
-                date={formData.date}
-                onSelect={(date) => date && setFormData({ ...formData, date })}
-              />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Start Time</Label>
-                <Input
-                  type="time"
-                  value={formData.startTime}
-                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                  required
+                <Label>Start Date</Label>
+                <DatePicker
+                  date={formData.startDate}
+                  onSelect={(date) => date && setFormData({ ...formData, startDate: date })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>End Time</Label>
-                <Input
-                  type="time"
-                  value={formData.endTime}
-                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                  required
+                <Label>End Date</Label>
+                <DatePicker
+                  date={formData.endDate}
+                  onSelect={(date) => date && setFormData({ ...formData, endDate: date })}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Location</Label>
+              <Label>Client</Label>
               <Input
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                value={formData.client}
+                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Budget</Label>
+              <Input
+                type="text"
+                value={formData.budget}
+                onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                placeholder="Enter project budget"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Team</Label>
+              <Input
+                value={formData.team}
+                onChange={(e) => setFormData({ ...formData, team: e.target.value })}
+                placeholder="Enter team members"
               />
             </div>
             <div className="space-y-2">
@@ -212,30 +168,17 @@ export default function NewProjectPage() {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="upcoming">Upcoming</SelectItem>
-                  <SelectItem value="ongoing">Ongoing</SelectItem>
+                  <SelectItem value="planning">Planning</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="on-hold">On Hold</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          
-          <div className="space-y-4">
-            <ThumbnailUpload
-              value={formData.thumbnail}
-              onChange={(file) => setFormData({ ...formData, thumbnail: file })}
-            />
-            <div className="space-y-2">
-              <Label>Attachments</Label>
-              <FileUpload
-                onFilesChange={handleFilesChange}
-                maxFiles={15}
-                maxSize={200 * 1024 * 1024} // 200MB
-              />
-            </div>
-          </div>
         </div>
-        <div className="flex justify-end gap-4">
+        
+        <div className="flex gap-4">
           <Button
             type="button"
             variant="outline"
@@ -246,9 +189,9 @@ export default function NewProjectPage() {
           </Button>
           <Button 
             type="submit" 
-            disabled={isLoading || formData.attachments.some(file => file.status === 'uploading')}
+            disabled={isLoading}
           >
-            {isLoading ? 'Creating...' : 'Create Event'}
+            {isLoading ? 'Creating...' : 'Create Project'}
           </Button>
         </div>
       </form>

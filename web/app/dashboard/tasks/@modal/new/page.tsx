@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, Suspense, Component, ErrorInfo, ReactNode, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Lock, Unlock, Upload } from "lucide-react";
+import { X, Lock, Unlock, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "../../../projects/components/FileUpload";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
+import SetQuickToken from '@/app/account/Actions/SetQuickToken';
+import webpush from 'web-push';
 
 interface FileChunk {
   id: string;
@@ -39,9 +43,64 @@ interface UploadedFile {
   url?: string;
 }
 
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-export default function NewTaskModal() {
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Dialog open onOpenChange={() => window.history.back()}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Error</DialogTitle>
+              <DialogDescription>
+                Something went wrong while loading the task creation form.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-red-500">{this.state.error?.message}</p>
+              <Button onClick={() => this.setState({ hasError: false, error: null })}>
+                Try again
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function LoadingFallback() {
+  return (
+    <Dialog open onOpenChange={() => window.history.back()}>
+      <DialogContent className="sm:max-w-md">
+        <div className="flex items-center justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { 
+  ssr: false,
+  loading: () => <LoadingFallback />
+});
+
+function NewTaskModal() {
   const router = useRouter();
   const [newTask, setNewTask] = useState({
     title: "",
@@ -56,7 +115,21 @@ export default function NewTaskModal() {
   });
   const [tagInput, setTagInput] = useState("");
 
-  const handleCreateTask = () => {
+  useEffect(() => {
+    const fetchVAPIDKeys = async () => {
+      try {
+        const response = await fetch('/api/webpush');
+        const data = await response.json();
+        console.log('VAPID Keys:', data.vapidKeys);
+      } catch (error) {
+        console.error('Error fetching VAPID keys:', error);
+      }
+    };
+
+    fetchVAPIDKeys();
+  }, []);
+
+  const handleCreateTask = async () => {
     if (!newTask.title.trim()) return;
 
     let dueDateTime = null;
@@ -64,23 +137,55 @@ export default function NewTaskModal() {
       dueDateTime = new Date(`${newTask.dueDate}T${newTask.dueTime || '00:00'}`);
     }
 
-    const task = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description,
-      status: "pending",
-      createdAt: new Date(),
-      privacy: newTask.privacy,
-      dueDate: dueDateTime,
-      priority: newTask.priority,
-      tags: newTask.tags,
-      assignee: newTask.assignee,
-      attachments: newTask.attachments,
-    };
+    try {
+      let taskToken = await SetQuickToken(`task_token`);
+      if (!taskToken) {
+        toast.error(`Failed to create task.`);
+        return;
+      }
 
-    // Here you would typically make an API call to save the task
-    // For now, we'll just close the modal
-    router.back();
+      const taskData = {
+        title: newTask.title,
+        description: newTask.description,
+        privacy: newTask.privacy,
+        priority: newTask.priority,
+        dueDate: dueDateTime?.toISOString().split('T')[0] || null,
+        dueTime: dueDateTime?.toTimeString().split(' ')[0] || null,
+        tags: newTask.tags,
+        assignee: newTask.assignee,
+        attachments: newTask.attachments.map(file => ({
+          id: file.id,
+          name: file.customName || file.file.name,
+          size: file.file.size,
+          lastModified: file.file.lastModified,
+          url: file.url,
+          path: file.path
+        })),
+        notifications: {
+          email: true,
+          push: true
+        }
+      };
+
+      const response = await fetch('/api/tasks/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': Cookies.get('session') || ''
+        },
+        body: JSON.stringify(taskData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      toast.success('Task created successfully');
+      router.back();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error('Failed to create task');
+    }
   };
 
   const handleAddTag = () => {
@@ -239,14 +344,6 @@ export default function NewTaskModal() {
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <label>Attachments</label>
-            <FileUpload
-              onFilesChange={handleFilesChange}
-              maxFiles={15}
-              maxSize={200 * 1024 * 1024}
-            />
-          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
@@ -254,5 +351,15 @@ export default function NewTaskModal() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export default function NewTaskModalWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <NewTaskModal />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

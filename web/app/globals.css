@@ -473,6 +473,11 @@ img {
   pointer-events: none !important;
 }
 
+.man_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
 .grid_bx {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
@@ -711,4 +716,23 @@ img {
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.wmde-markdown {
+  background: transparent !important;
+}
+
+.w-md-editor-preview {
+  background: transparent !important;
+}
+.wmde-markdown {
+  background: transparent !important;
+}
+
+.wmde-markdown-var {
+  background: transparent !important;
+}
+
+.w-md-editor-toolbar {
+  background: transparent !important;
 }

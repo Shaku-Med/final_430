@@ -9,9 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
-import { ThumbnailUpload } from '../../projects/components/ThumbnailUpload'
 import { FileUpload } from '../../projects/components/FileUpload'
-import { MapPin, Search } from 'lucide-react'
+import { MapPin, Search, Map } from 'lucide-react'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 
@@ -50,7 +49,7 @@ export default function NewEventPage() {
     startTime: '09:00',
     endTime: '10:00',
     status: 'upcoming',
-    thumbnail: null as File | null,
+    thumbnail: [] as UploadedFile[],
     attachments: [] as UploadedFile[],
     location: ''
   })
@@ -62,6 +61,14 @@ export default function NewEventPage() {
       attachments: files
     }));
   };
+
+  const handleThumbnailChange = (files: UploadedFile[]) => {
+    setFormData(prev => ({
+      ...prev,
+      thumbnail: files
+    }));
+  };
+
   const handleLocationSearch = () => {
     if (formData.location) {
       const query = encodeURIComponent(formData.location);
@@ -69,11 +76,11 @@ export default function NewEventPage() {
     }
   };
   
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const isUploading = formData.attachments.some(file => file.status === 'uploading');
+    const isUploading = formData.attachments.some(file => file.status === 'uploading') || 
+                       formData.thumbnail.some(file => file.status === 'uploading');
     if (isUploading) {
       toast.error('Please wait for all files to finish uploading');
       return;
@@ -81,6 +88,11 @@ export default function NewEventPage() {
 
     if (!formData.location) {
       toast.error('Please enter a location for the event');
+      return;
+    }
+
+    if (formData.thumbnail.length === 0) {
+      toast.error('Please upload a thumbnail for the event');
       return;
     }
 
@@ -97,19 +109,29 @@ export default function NewEventPage() {
       formDataToSend.append('location', formData.location)
       formDataToSend.append('mapUrl', mapUrl)
       
-      if (formData.thumbnail) {
-        formDataToSend.append('thumbnail', formData.thumbnail)
+      if (formData.thumbnail[0]) {
+        const thumbnailData = {
+          id: formData.thumbnail[0].id,
+          name: formData.thumbnail[0].file.name,
+          type: formData.thumbnail[0].file.type,
+          size: formData.thumbnail[0].file.size,
+          path: formData.thumbnail[0].path,
+          url: formData.thumbnail[0].url
+        }
+        formDataToSend.append('thumbnail', JSON.stringify(thumbnailData))
       }
 
       const attachmentsData = formData.attachments.map(file => ({
         id: file.id,
         name: file.file.name,
         type: file.file.type,
-        size: file.file.size
+        size: file.file.size,
+        path: file.path,
+        url: file.url
       }))
       formDataToSend.append('attachments', JSON.stringify(attachmentsData))
 
-      const response = await fetch('/api/events', {
+      const response = await fetch('/api/events/create', {
         method: 'POST',
         body: formDataToSend
       })
@@ -225,26 +247,42 @@ export default function NewEventPage() {
                   </div>
                 </div>
                 <div className="h-[300px] rounded-lg overflow-hidden border">
-                  <iframe
-                    title="Event Location Map"
-                    src={mapUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
+                  {mapUrl ? (
+                    <iframe
+                      title="Event Location Map"
+                      src={mapUrl}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                      <Map className="h-12 w-12" />
+                      <p className="text-center">
+                        Enter a location above to see it on the map
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="space-y-4">
-            <ThumbnailUpload
-              value={formData.thumbnail}
-              onChange={(file) => setFormData({ ...formData, thumbnail: file })}
-            />
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Thumbnail</Label>
+              <FileUpload
+                onFilesChange={handleThumbnailChange}
+                maxFiles={1}
+                maxSize={5 * 1024 * 1024} // 5MB limit for thumbnail
+                accept={{
+                  'image/*': []
+                }}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Attachments</Label>
               <FileUpload
@@ -266,7 +304,7 @@ export default function NewEventPage() {
           </Button>
           <Button 
             type="submit" 
-            disabled={isLoading || formData.attachments.some(file => file.status === 'uploading')}
+            disabled={isLoading || formData.attachments.some(file => file.status === 'uploading') || formData.thumbnail.some(file => file.status === 'uploading')}
           >
             {isLoading ? 'Creating...' : 'Create Event'}
           </Button>

@@ -4,7 +4,7 @@ import { DecryptCombine } from "../../Lock/Combine"
 import { getClientIP } from "../../IsAuth/SetToken"
 
 // 
-const VerifyToken = async (where?: string, authKeys?: any[], returnData?: boolean) => {
+const VerifyToken = async (where?: string, authKeys?: any[], returnData?: boolean, checkO?: boolean) => {
   try {
     let h = await headers()
     let c = await cookies()
@@ -37,6 +37,10 @@ const VerifyToken = async (where?: string, authKeys?: any[], returnData?: boolea
                 ...o
             }
             // 
+            if(checkO){
+                return returnData ? dec : true
+            }
+
             if(dec.ip === obj.ip && dec['user-agent'] === obj["user-agent"] && dec['x-forwarded-for'] === obj["x-forwarded-for"] && dec['sec-ch-ua-platform'] === obj["sec-ch-ua-platform"]){
                 return returnData ? dec : true
             }

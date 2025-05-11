@@ -1,25 +1,58 @@
 import { NextResponse } from 'next/server'
 import db from '@/app/Database/Supabase/Base1'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import VerifyToken from '@/app/Auth/PageAuth/Action/VerifyToken'
+import { getClientIP } from '@/app/Auth/IsAuth/SetToken'
+import { VerifyHeaders } from '@/app/account/Actions/SetQuickToken'
+import IsAuth from '@/app/Auth/IsAuth/IsAuth'
+import { decrypt } from '@/app/Auth/Lock/Enc'
+
+interface AuthUser {
+  user_id: string;
+}
 
 export async function POST(request: Request) {
   try {
-    // Get authentication token
+    const user = await IsAuth(true)
+    if (!user || typeof user === 'boolean' || !('user_id' in user)) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+    // Get headers and cookies
+    const h = await headers()
     const c = await cookies()
-    const _athK_ = c?.get('_athk_')?.value
-    const authSession = c?.get('authsession')?.value
+    const au = h.get('user-agent')?.split(/\s+/).join('')
+    const clientIP = await getClientIP(h)
+    const header_v = await VerifyHeaders()
 
-    if (!_athK_ || !authSession) {
+    // Set up verification keys
+    const ky: string[] = [`${au}`, `${clientIP}`]
+    let k: string[] = [`${process.env.PASS1}`, `${process.env.TOKEN2}`]
+
+    // Verify headers
+    if (!header_v) {
+      return NextResponse.json({ 
+        error: 'Unauthorized',
+        message: 'Invalid request headers'
+      }, { status: 401 })
+    }
+
+    // Get authentication tokens
+    const session = request.headers.get('Authorization')
+    const task_token = c?.get('task_token')?.value
+
+    if (!session || !task_token) {
+      c.delete('task_token')
       return NextResponse.json({ 
         error: 'Unauthorized',
         message: 'Please log in to create tasks'
       }, { status: 401 })
     }
 
-    // Verify authentication
-    const vrToken = await VerifyToken(`${_athK_}`)
-    if (!vrToken) {
+    // Verify tokens
+    const vrToken = await VerifyToken(`${session}`, k)
+    const vrTaskToken = await VerifyToken(`${task_token}`, ky)
+
+    if (!vrToken || !vrTaskToken) {
       return NextResponse.json({ 
         error: 'Unauthorized',
         message: 'Invalid authentication'
@@ -28,8 +61,7 @@ export async function POST(request: Request) {
 
     // Get request body
     const body = await request.json()
-    const {
-      user_id,
+    let {
       title,
       privacy,
       dueDate,
@@ -43,18 +75,22 @@ export async function POST(request: Request) {
     } = body
 
     // Validate required fields
-    if (!user_id || !title) {
+    if (!title) {
       return NextResponse.json({
         error: 'Missing required fields',
-        message: 'User ID and title are required'
+        message: 'Title is required'
       }, { status: 400 })
     }
 
+    if(attachments && attachments.length > 0){
+      console.log(attachments)
+      // attachments = decrypt(`${attachments[0]}`, `${process.env.FILE_TOKEN}`)
+    }
     // Create task in database
     const { data, error } = await db
       .from('tasks')
       .insert({
-        user_id,
+        user_id: user?.user_id,
         title,
         privacy: privacy || 'private',
         dueDate,
@@ -64,7 +100,9 @@ export async function POST(request: Request) {
         tags: tags || [],
         assignee: assignee || null,
         description: description || '',
-        notifications: notifications || []
+        notifications: notifications || [],
+        created_at: new Date().toISOString(),
+        task_id: crypto.randomUUID()
       })
       .select()
       .single()

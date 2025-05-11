@@ -1,13 +1,51 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Logo from '../Icons/Logo'
 import { Lightbulb } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
-  
+  const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      toast.error('Please enter your email address')
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong')
+      }
+
+      toast.success('Successfully subscribed!')
+      setEmail('')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to subscribe')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <footer className="w-full py-12 bg-card border-t">
       <div className="container mx-auto px-4">
@@ -73,17 +111,21 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-medium text-lg mb-4">Subscribe</h3>
             <p className="text-muted-foreground text-sm mb-4">Stay updated with our latest events and news</p>
-            <form className="flex gap-2">
-              <input 
+            <form onSubmit={handleSubmit} className="flex gap-2">
+              <Input 
                 type="email" 
                 placeholder="Your email" 
-                className="px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-sm flex-grow"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                className="flex-1"
               />
               <button 
                 type="submit" 
-                className="px-3 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition-colors"
+                disabled={isSubmitting}
+                className="px-3 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Subscribe
+                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </button>
             </form>
           </div>

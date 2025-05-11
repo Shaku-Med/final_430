@@ -41,13 +41,17 @@ interface FileUploadProps {
   maxFiles?: number;
   maxSize?: number;
   autoUpload?: boolean;
+  accept?: {
+    [key: string]: string[];
+  };
 }
 
 export function FileUpload({
   onFilesChange,
   maxFiles = 15,
   maxSize = 1024 * 1024 * 1024,
-  autoUpload = true
+  autoUpload = true,
+  accept
 }: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -117,7 +121,7 @@ export function FileUpload({
       formData.append('fileName', file.name);
       formData.append('id', fileId);
 
-      const response = await fetch('https://fluffy-trout-jp9gq54qr4xhq97x-3000.app.github.dev/upload', {
+      const response = await fetch('http://localhost:3001/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -128,42 +132,32 @@ export function FileUpload({
         }
       });
 
-      // Track upload progress
-      const reader = response.body?.getReader();
-      const contentLength = +response.headers.get('Content-Length')!;
-
-      let receivedLength = 0;
-      while(true) {
-        const {done, value} = await reader!.read();
-        
-        if (done) break;
-        
-        receivedLength += value.length;
-        const progress = Math.round((receivedLength / contentLength) * 100);
-        
-        setUploadedFiles(prev =>
-          prev.map(f =>
-            f.id === fileId ? { ...f, progress } : f
-          )
-        );
-      }
-
       if (!response.ok) {
         throw new Error(`Upload failed with status ${response.status}`);
       }
 
+      // Get the response data first
       const data = await response.json();
-      setUploadedFiles(prev =>
-        prev.map(f =>
+
+      // Update the file status and add URL
+      setUploadedFiles(prevFiles => {
+        const updatedFiles = prevFiles.map(f =>
           f.id === fileId ? {
             ...f,
-            status: 'completed',
+            status: 'completed' as const,
             progress: 100,
-            url: data.url
+            url: data.urls,
+            path: data.path
           } : f
-        )
-      );
-      onFilesChange(uploadedFiles.filter(f => f.status === 'completed'));
+        );
+
+        // Notify parent component of completed files
+        onFilesChange(updatedFiles.filter(f => f.status === 'completed'));
+        
+        return updatedFiles;
+      });
+
+      toast.success(`Successfully uploaded ${file.name}`);
     } catch (error) {
       console.error('Error uploading file:', error);
       setUploadedFiles(prev =>
@@ -202,7 +196,8 @@ export function FileUpload({
     onDrop,
     maxFiles,
     maxSize,
-    disabled: isProcessing
+    disabled: isProcessing,
+    accept
   });
 
   const removeFile = (id: string) => {

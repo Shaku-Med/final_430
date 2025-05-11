@@ -9,7 +9,7 @@ const ssrfProtection = require('./middleware/BlacklistIp/ssrfProtection');
 const AllRoutes = require('./routes/AllRoutes');
 const bodyParser = require('body-parser')
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Trust proxy to handle X-Forwarded-For headers correctly
 app.set('trust proxy', 1);

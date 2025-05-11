@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useRef } from 'react';
 
 const Hero = () => {
@@ -99,12 +100,16 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-4">
-            <button className="px-6 md:px-8 py-2 md:py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/50">
-              Explore Events
-            </button>
-            <button className="px-6 md:px-8 py-2 md:py-3 bg-transparent border border-white/30 text-white font-medium rounded-full hover:bg-white/10 transition-all">
-              Submit Project
-            </button>
+            <Link className='w-full' href="/events">
+              <button className="px-6 w-full md:px-8 py-2 md:py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/50">
+                Explore Events
+              </button>
+            </Link>
+            <Link className='w-full' href="/dashboard/projects/new">
+              <button className="px-6 w-full md:px-8 py-2 md:py-3 bg-transparent border border-white/30 text-white font-medium rounded-full hover:bg-white/10 transition-all">
+                Submit Project
+              </button>
+            </Link>
           </div>
         </div>
         

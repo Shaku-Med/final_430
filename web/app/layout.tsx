@@ -4,17 +4,26 @@ import "./globals.css";
 import { cookies, headers } from "next/headers";
 import { Toaster } from "sonner";
 import IsAuth from "./Auth/IsAuth/IsAuth";
-import SetToken from "./Auth/IsAuth/SetToken";
+import SetToken, { getClientIP } from "./Auth/IsAuth/SetToken";
 import Script from "next/script";
+import Providers from "./providers";
+import SocketIO from "./Socket/SocketIO";
+import { EncryptCombine } from "./Auth/Lock/Combine";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif']
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+  fallback: ['monospace']
 });
 
 export const metadata: Metadata = {
@@ -24,44 +33,53 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  let usr = await IsAuth()
+}) {
+  let h = await headers()
+  let usr: any = await IsAuth(true);
   let sign_inToken;
-  let theme: any = `system`
-  // 
-  if(usr){
-    let k: string[] = [`${process.env.PASS1}`, `${process.env.TOKEN2}`]
+  let token;
+  let theme: any = `system`;
+
+  if (usr) {
+    let k: string[] = [`${process.env.PASS1}`, `${process.env.TOKEN2}`];
     sign_inToken = await SetToken({
       expiresIn: '1h',
       algorithm: 'HS512'
-    }, k)
-    
+    }, k);
+    let sockK = [`${process.env.SOCKET_TOKEN}`, `${process.env.SOCKET_TOKEN2}`];
+    let BD = {
+      'user_id': usr.user_id,
+      'ua': h.get('user-agent')?.split(/\s+/).join(''),
+      'ip': await getClientIP(h)
+    }
+    token = EncryptCombine(JSON.stringify(BD), sockK, {
+      expiresIn: '1h',
+      algorithm: 'HS512'
+    });
   }
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${theme} antialiased`}
-      >
-        <Toaster closeButton duration={20000} richColors position={`bottom-center`} theme={theme}/>
-        {children}
-      </body>
-      {
-        (usr && sign_inToken) && (
+      <body className={`${geistSans.variable} ${geistMono.variable} ${theme} antialiased`}>
+        <Providers>
+          {children}
+          <Toaster closeButton duration={20000} richColors position={`bottom-center`} theme={theme} />
+        </Providers>
+        {(usr && sign_inToken && token) && (
           <>
-           <Script>
-             {
-              `
-              window.addEventListener('load', () => {
-                window.document.cookie = 'session=${sign_inToken}';
-              })
-              `
-             }
-           </Script>
+            <Script>
+              {`
+                window.addEventListener('load', () => {
+                  window.document.cookie = 'session=${sign_inToken}';
+                })
+              `}
+            </Script>
+            <SocketIO token={`${token}`}/>
           </>
-        )
-      }
+        )}
+      </body>
     </html>
   );
 }
