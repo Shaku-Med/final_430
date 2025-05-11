@@ -9,7 +9,7 @@ interface SocketIOProps {
   token?: string;
 }
 
-const SocketIO: React.FC<SocketIOProps> = ({ serverUrl = 'http://localhost:3002', token }) => {
+const SocketIO: React.FC<SocketIOProps> = ({ serverUrl = 'https://fluffy-trout-jp9gq54qr4xhq97x-3002.app.github.dev', token }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 

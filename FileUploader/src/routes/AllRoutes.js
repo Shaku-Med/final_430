@@ -6,10 +6,17 @@ const errorHandler = require("../middleware/error")
 // Hacking works along side with knowing how humans thinkg.
 const AllRoutes = (req, res, next) => {
     try {
+        console.log(process.env.ALLOWED_ORIGINS)
+
         const au = req.headers['user-agent']?.split(/\s+/).join('')
         let MX = () => {
             try {
                 let accessToken = req.headers['access-token']
+                if(!accessToken){
+                    return errorHandler({
+                        message: `You are not allowed to access this resource.`
+                    }, req, res, next, 401)
+                }
                 let vr = decrypt(`${accessToken}`, `${process.env.PRIVATE_K}+${au}`)
                 if(!accessToken){
                     return errorHandler({
