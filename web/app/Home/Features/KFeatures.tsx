@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import { BookmarkCheck, CalendarIcon, TrendingDown, ChevronRight, Code, Users } from "lucide-react";
 import { motion } from 'motion/react';

@@ -55,6 +55,11 @@ export default function NewProjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if(isLoading){
+      toast.info('Please wait while we create the project')
+      return;
+    }
     
     if (!formData.client) {
       toast.error('Please enter a client name')

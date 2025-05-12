@@ -22,6 +22,7 @@ interface Event {
   description: string;
   date: string;
   status: 'upcoming' | 'ongoing' | 'completed';
+  event_id: string;
   thumbnail?: {
     id?: string;
     name?: string;
@@ -470,18 +471,18 @@ export default function EventPage({data}: {data: Event}) {
               <h2 className="text-2xl sm:text-3xl font-bold ">You might also like</h2>
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {data.suggestedEvents.map((suggestedEvent) => (
-                  <Link key={suggestedEvent.id} href={`/dashboard/events/${suggestedEvent.id}`}>
+                  <Link key={suggestedEvent.id} href={`/dashboard/events/${suggestedEvent.event_id}`}>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 /backdrop-blur-sm">
+                      <Card className="overflow-hidden p-0 border-0 shadow-lg hover:shadow-xl transition-all duration-300 /backdrop-blur-sm">
                         {suggestedEvent.thumbnail?.url && (
                           <div className="relative h-48 w-full">
                             <img
-                              src={suggestedEvent.thumbnail.url}
+                              src={JSON.parse(suggestedEvent.thumbnail.url)[0]}
                               alt={suggestedEvent.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover object-top"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                           </div>

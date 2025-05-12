@@ -12,9 +12,10 @@ import {
   CommandItem,
   CommandSeparator,
 } from "@/components/ui/command";
-import { quickActions } from './data';
+import { getQuickActions } from './data';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface SearchResult {
   id: string;
@@ -40,47 +41,23 @@ export const SearchCommand: React.FC<SearchCommandProps> = ({
   isMobile = false,
   apiEndpoint = '/api/search' 
 }) => {
+  const router = useRouter();
   const [isCommandOpen, setIsCommandOpen] = useState(false);
-  const [os, setOs] = useState<'windows' | 'mac' | 'linux' | 'other'>('other');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quickActions, setQuickActions] = useState(getQuickActions());
 
   useEffect(() => {
-    const detectOS = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      if (userAgent.indexOf('win') !== -1) return 'windows';
-      if (userAgent.indexOf('mac') !== -1) return 'mac';
-      if (userAgent.indexOf('linux') !== -1) return 'linux';
-      return 'other';
-    };
-    setOs(detectOS());
+    setQuickActions(getQuickActions());
   }, []);
 
-  const getShortcutSymbol = (shortcut: string) => {
-    if (os === 'mac') {
-      return shortcut.replace('Ctrl', '⌘')
-                     .replace('Alt', '⌥')
-                     .replace('Shift', '⇧');
-    }
-    return shortcut;
-  };
+  // No keyboard shortcuts
 
   const getSearchShortcut = () => {
-    return os === 'mac' ? '⌘K' : 'Ctrl+K';
+    return 'Ctrl+K';
   };
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.key === 'k' && (os === 'mac' ? e.metaKey : e.ctrlKey)) && !e.shiftKey) {
-        e.preventDefault();
-        setIsCommandOpen((open) => !open);
-      }
-    };
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, [os]);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -120,29 +97,34 @@ export const SearchCommand: React.FC<SearchCommandProps> = ({
     
     switch (item.type) {
       case 'project':
-        window.location.href = `/projects/${item.id}`;
+        router.push(`/projects/${item.id}`);
         break;
       case 'team':
-        window.location.href = `/team/${item.id}`;
+        router.push(`/team/${item.id}`);
         break;
       case 'document':
-        window.location.href = `/documents/${item.id}`;
+        router.push(`/documents/${item.id}`);
         break;
       case 'task':
-        window.location.href = `/tasks/${item.id}`;
+        router.push(`/tasks/${item.id}`);
         break;
       case 'video':
-        window.location.href = `/videos/${item.id}`;
+        router.push(`/videos/${item.id}`);
         break;
       case 'event':
-        window.location.href = `/events/${item.id}`;
+        router.push(`/events/${item.id}`);
         break;
       case 'user':
-        window.location.href = `/profile/${item.id}`;
+        router.push(`/profile/${item.id}`);
         break;
       default:
-        window.location.href = `/${item.type}/${item.id}`;
+        router.push(`/${item.type}/${item.id}`);
     }
+  };
+
+  const handleQuickActionSelect = (route: string) => {
+    setIsCommandOpen(false);
+    router.push(route);
   };
 
   const getTypeIcon = (type: SearchResult['type']) => {
@@ -199,9 +181,6 @@ export const SearchCommand: React.FC<SearchCommandProps> = ({
               <Search className="mr-2 h-4 w-4" />
               Search...
             </div>
-            <kbd className="bg-muted px-2 py-0.5 text-xs rounded hidden sm:inline-block">
-              {getSearchShortcut()}
-            </kbd>
           </Button>
         </div>
       )}
@@ -243,14 +222,15 @@ export const SearchCommand: React.FC<SearchCommandProps> = ({
           {(!searchQuery || searchQuery.length < 2) && (
             <CommandGroup heading="Quick Actions">
               {quickActions.map((action) => (
-                <CommandItem key={action.name} className="flex items-center justify-between">
+                <CommandItem 
+                  key={action.name} 
+                  className="flex items-center justify-between"
+                  onSelect={() => handleQuickActionSelect(action.route)}
+                >
                   <div className="flex items-center">
                     <action.icon className="mr-2 h-4 w-4" />
                     <span>{action.name}</span>
                   </div>
-                  <kbd className="bg-muted px-2 py-0.5 text-xs rounded">
-                    {getShortcutSymbol(action.shortcut)}
-                  </kbd>
                 </CommandItem>
               ))}
             </CommandGroup>

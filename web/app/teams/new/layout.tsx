@@ -6,12 +6,12 @@ import Footer from "@/app/Home/Footer/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: 'New Team Members',
-    template: '%s | New Team Members'
+    default: 'Join us at CSI spotlight',
+    template: '%s | spotlight'
   },
   openGraph: {
-    title: 'New Team Members',
-    description: 'New Team Members',
+    title: 'Join us at CSI spotlight',
+    description: 'spotlight',
   },
 }
 

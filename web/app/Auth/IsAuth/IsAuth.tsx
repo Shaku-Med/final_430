@@ -18,7 +18,7 @@ const IsAuth = async (sendData?: boolean): Promise<boolean|object> => {
     let vt = await VerifyToken(xs, ky, true)
     if(!vt) return false;
     // 
-    let { data, error } = await db.from('users').select(`user_id, email, id, firstname, name, lastname, joinedAt`).eq(`user_id`, c_usr).eq(`xs`, vt?.data).maybeSingle()
+    let { data, error } = await db.from('users').select(`user_id, email, id, firstname, name, lastname, joinedAt, profile, team, theme`).eq(`user_id`, c_usr).eq(`xs`, vt?.data).maybeSingle()
     if(error) {
       c.delete(`xs`)
       c.delete(`c_usr`)

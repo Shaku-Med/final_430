@@ -8,6 +8,8 @@ import { ProfileMenu } from './profile-menu';
 import { useIsMobile } from '../../hooks/use-mobile';
 import { NotificationsDropdown } from './notification';
 import { SidebarProvider, SidebarTrigger } from '../app-sidebar';
+import { Button } from '@/components/ui/button';
+import { Bell } from 'lucide-react';
 
 const Topbar: React.FC = () => {
   const isMobile = useIsMobile();
@@ -29,9 +31,13 @@ const Topbar: React.FC = () => {
         <div className="flex items-center gap-1">
           <SearchCommand isMobile={isMobile} />
 
-          <NotificationsDropdown />
+          <NotificationsDropdown>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-4 w-4" />
+            </Button>
+          </NotificationsDropdown>
 
-          <MessageIndicator count={3} />
+          {/* <MessageIndicator count={3} /> */}
                     
           <ProfileMenu />
         </div>

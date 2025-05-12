@@ -81,6 +81,11 @@ export default function EditEventPage({data}: any) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if(isLoading){
+      toast.info('Please wait while we update the event')
+      return;
+    }
+
     const isUploading = formData.attachments.some((file: UploadedFile) => file.status === 'uploading') || 
                        formData.thumbnail.some((file: UploadedFile) => file.status === 'uploading')
     if (isUploading) {
@@ -287,6 +292,7 @@ export default function EditEventPage({data}: any) {
                 accept={{
                   'image/*': []
                 }}
+                onProcessing={setIsLoading}
               />
             </div>
             <div className="space-y-2">
@@ -295,6 +301,7 @@ export default function EditEventPage({data}: any) {
                 onFilesChange={handleFilesChange}
                 maxFiles={15}
                 maxSize={200 * 1024 * 1024}
+                onProcessing={setIsLoading}
               />
             </div>
           </div>

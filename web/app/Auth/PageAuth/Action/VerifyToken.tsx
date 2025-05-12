@@ -12,7 +12,7 @@ const VerifyToken = async (where?: string, authKeys?: any[], returnData?: boolea
     // 
 
     let au = h.get('user-agent')?.split(/\s+/).join('')
-    let k = `${au}+${process.env.TOKEN1}`
+    let k = `${!checkO ? au : ''}+${process.env.TOKEN1}`
     // 
     let keys = [k, process.env.TOKEN2]
     if(authKeys){

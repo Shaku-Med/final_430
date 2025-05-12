@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import IsAuth from '@/app/Auth/IsAuth/IsAuth';
 
 interface Notification {
   id: string;
@@ -40,8 +39,11 @@ export default function NotificationsPage() {
 
   const fetchNotifications = async (page: number = 1) => {
     try {
-      const user = await IsAuth(true);
-      if (!user || typeof user === 'boolean') {
+      // Check authentication using the new API endpoint
+      const authResponse = await fetch('/api/auth/check');
+      const authData = await authResponse.json();
+      
+      if (!authData.authenticated) {
         router.push('/login');
         return;
       }

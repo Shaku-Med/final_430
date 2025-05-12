@@ -736,3 +736,13 @@ img {
 .w-md-editor-toolbar {
   background: transparent !important;
 }
+
+.accessibility {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+.accessibility * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}

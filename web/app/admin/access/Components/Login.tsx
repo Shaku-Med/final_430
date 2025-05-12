@@ -11,9 +11,14 @@ import { Lightbulb, Eye, EyeOff } from 'lucide-react'
 
 const Login = () => {
   const [password, setPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -46,16 +51,43 @@ const Login = () => {
     setError('')
     setIsLoading(true)
 
-    // Simulate loading delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    if (password === 'admin123') {
-      localStorage.setItem('adminAuthenticated', 'true')
-      router.push('/admin/dashboard')
-    } else {
-      setError('Invalid password')
+    // Validate passwords match if creating new password
+    if (isCreating && newPassword !== confirmPassword) {
+      setError('New passwords do not match')
+      setIsLoading(false)
+      return
     }
-    setIsLoading(false)
+
+    try {
+      const response = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          password,
+          newPassword: isCreating ? newPassword : undefined,
+          _at: (window as any)._at 
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        if (data.action === 'create'){
+          setIsCreating(true)
+          return;
+        }
+        router.push(`/admin/dashboard`)
+      }  else {
+        setError(data.message || 'Invalid password')
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.')
+      console.error('Login error:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -108,21 +140,26 @@ const Login = () => {
             </div>
           </div>
           <div className="text-center">
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {isCreating ? 'Create New Password' : 'Welcome Back'}
+            </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
-              Enter your credentials to access the admin dashboard
+              {isCreating 
+                ? 'Please create a new password for your admin account'
+                : 'Enter your credentials to access the admin dashboard'
+              }
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
+                  placeholder={isCreating ? "Enter current password" : "Enter admin password"}
                   className="pr-10 transition-all duration-200 focus:shadow-md focus:shadow-primary/10"
                   required
                 />
@@ -134,6 +171,46 @@ const Login = () => {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+
+              {isCreating && (
+                <>
+                  <div className="relative">
+                    <Input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      className="pr-10 transition-all duration-200 focus:shadow-md focus:shadow-primary/10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="pr-10 transition-all duration-200 focus:shadow-md focus:shadow-primary/10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             
             {error && (
@@ -148,7 +225,7 @@ const Login = () => {
               disabled={isLoading}
             >
               <span className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                Login
+                {isCreating ? 'Create Password' : 'Login'}
               </span>
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -161,7 +238,7 @@ const Login = () => {
           
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
-              Forgot your password? Contact administrator
+              {isCreating ? 'Please create a strong password' : 'Forgot your password? Contact administrator'}
             </p>
           </div>
         </CardContent>

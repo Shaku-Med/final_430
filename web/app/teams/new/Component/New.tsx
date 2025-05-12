@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { FileUpload } from '@/app/dashboard/projects/components/FileUpload';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
@@ -23,6 +24,8 @@ interface TeamMember {
   expertise: string[];
   information: string;
   user_id: string;
+  attachments: any[];
+  socialLinks: { platform: string; url: string }[];
 }
 
 const suggestedRoles = [
@@ -43,22 +46,26 @@ const suggestedRoles = [
   "Mobile Developer"
 ];
 
-const New = () => {
+const New = ({id, isEdit, editData}: {id?: string, isEdit?: boolean, editData?: TeamMember}) => {
   const router = useRouter();
   const [formData, setFormData] = useState<TeamMember>({
-    id: uuidv4(),
-    name: '',
-    role: '',
-    description: '',
-    expertise: [],
-    information: '',
-    user_id: '', // This should be set based on the logged-in user
+    id: isEdit && editData ? editData.id : uuidv4(),
+    name: isEdit && editData ? editData.name : '',
+    role: isEdit && editData ? editData.role : '',
+    description: isEdit && editData ? editData.description : '',
+    expertise: isEdit && editData ? editData.expertise : [],
+    information: isEdit && editData ? editData.information : '',
+    user_id: isEdit && editData ? editData.user_id : '', // This should be set based on the logged-in user
+    attachments: [],
+    socialLinks: isEdit && editData ? editData.socialLinks : [],
   });
 
   const [expertiseInput, setExpertiseInput] = useState('');
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [wordCount, setWordCount] = useState(0);
+  const [isloading, setisloading] = useState(false);
+  const [newSocialLink, setNewSocialLink] = useState({ platform: '', url: '' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -106,30 +113,89 @@ const New = () => {
     }));
   };
 
+  const handleFilesChange = (files: any[]) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: files
+    }));
+  };
+
+  const handleAddSocialLink = () => {
+    if (newSocialLink.platform.trim() && newSocialLink.url.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        socialLinks: [...prev.socialLinks, { ...newSocialLink }]
+      }));
+      setNewSocialLink({ platform: '', url: '' });
+    }
+  };
+
+  const handleRemoveSocialLink = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate word count before submission
+    // Validate all required fields
+    if (!formData.name.trim()) {
+      alert('Please enter a name');
+      return;
+    }
+
+    if (!formData.role.trim()) {
+      alert('Please select a role');
+      return;
+    }
+    
+    // Validate word count for description
     const words = formData.description.trim().split(/\s+/).filter(word => word.length > 0);
     if (words.length < 10) {
       alert('Description must be at least 10 words long');
       return;
     }
+    if (words.length > 500) {
+      alert('Description cannot exceed 500 words');
+      return;
+    }
+
+    // Validate expertise
+    if (formData.expertise.length === 0) {
+      alert('Please add at least one expertise');
+      return;
+    }
     
     try {
-      const response = await fetch('/api/team/new', {
-        method: 'POST',
+      const response = await fetch(`/api/team/new${isEdit ? `/edit` : ''}`, {
+        method: isEdit ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          name: formData.name.trim(),
+          role: formData.role.trim(),
+          description: formData.description.trim(),
+          information: formData.information.trim(),
+          attachments: formData.attachments,
+          user_id: id,
+          socialLinks: formData.socialLinks
+        }),
       });
 
-      if (response.ok) {
-        router.push('/teams');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create team member');
       }
+
+      const data = await response.json();
+      router.push('/teams');
     } catch (error) {
       console.error('Error creating team member:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create team member. Please try again.');
     }
   };
 
@@ -142,7 +208,7 @@ const New = () => {
     <div className="container mx-auto py-8 px-4">
       <Card>
         <CardHeader>
-          <CardTitle>Add New Team Member</CardTitle>
+          <CardTitle>Join Our Team</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -304,6 +370,72 @@ const New = () => {
                   preview="edit"
                   fullscreen={false}
                 />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Attachments</Label>
+              <FileUpload
+                onFilesChange={handleFilesChange}
+                maxFiles={20}
+                maxSize={50 * 1024 * 1024} // 50MB per file
+                onProcessing={setisloading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Social Links</Label>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Platform (e.g., LinkedIn, GitHub)"
+                    value={newSocialLink.platform}
+                    onChange={(e) => setNewSocialLink(prev => ({ ...prev, platform: e.target.value }))}
+                  />
+                  <Input
+                    type="url"
+                    placeholder="URL"
+                    value={newSocialLink.url}
+                    onChange={(e) => setNewSocialLink(prev => ({ ...prev, url: e.target.value }))}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAddSocialLink}
+                    variant="secondary"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {formData.socialLinks.map((link, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="flex-1 flex gap-2">
+                        <Input
+                          type="text"
+                          value={link.platform}
+                          readOnly
+                          className="bg-muted"
+                        />
+                        <Input
+                          type="url"
+                          value={link.url}
+                          readOnly
+                          className="bg-muted"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => handleRemoveSocialLink(index)}
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 

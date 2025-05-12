@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X, Pencil, Check, RefreshCw } from 'lucide-react';
+import { X, Pencil, Check, RefreshCw, Loader2 } from 'lucide-react';
 import { FilePreviewDialog } from './FilePreviewDialog';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -44,6 +44,7 @@ interface FileUploadProps {
   accept?: {
     [key: string]: string[];
   };
+  onProcessing?: (isProcessing: boolean) => void;
 }
 
 export function FileUpload({
@@ -51,7 +52,8 @@ export function FileUpload({
   maxFiles = 15,
   maxSize = 1024 * 1024 * 1024,
   autoUpload = true,
-  accept
+  accept,
+  onProcessing
 }: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -230,6 +232,10 @@ export function FileUpload({
     await uploadFile(fileToRetry.file, fileId);
   };
 
+  useEffect(() => {
+    onProcessing?.(isProcessing)
+  }, [isProcessing])
+
   return (
     <div className="space-y-4">
       <div
@@ -247,6 +253,18 @@ export function FileUpload({
               : 'Drag & drop files here, or click to select files'}
         </p>
       </div>
+
+      {
+            isProcessing && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3, ease: "easeOut" }} className='text-blue-500 flex items-center gap-2'>
+                <Loader2 className='w-4 h-4 animate-spin' />
+                <p>
+                  Please wait while we process your files.
+                </p>
+              </motion.div>
+
+            )
+      }
 
       <div className="">
         {uploadedFiles.map((uploadedFile, key) => (

@@ -1,5 +1,5 @@
 "use client";
-import { useState, createContext, useContext, ReactNode, JSX, useEffect, useCallback } from "react";
+import { useState, createContext, useContext, ReactNode, JSX, useEffect, useCallback, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -87,6 +87,7 @@ import { toast } from "sonner";
 import dynamic from 'next/dynamic';
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '@/lib/push-notifications';
+import ProfileDropDown from "./ProfileDropDown";
 
 interface NavigationItem {
   title: string;
@@ -221,6 +222,20 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
     priority: "medium" as "low" | "medium" | "high"
   });
   const [pushNotificationEnabled, setPushNotificationEnabled] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+
+  useLayoutEffect(() => {
+    const profile = (window as any)._profile;
+    if (profile) {
+      try {
+        const parsedProfile = typeof profile === 'string' ? JSON.parse(profile) : profile;
+        setUserProfile(parsedProfile);
+      } catch (error) {
+        console.error('Error parsing profile data:', error);
+      }
+    }
+  }, []);
 
   const fetchTasks = async () => {
     try {
@@ -573,13 +588,13 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
             <Button variant="outline" size="sm" className="w-full flex items-center gap-2">
               <Bell className="h-4 w-4" />
               <span>Notifications</span>
-              {user.notifications > 0 && (
+              {/* {user.notifications > 0 && (
                 <Badge variant="destructive" className="ml-auto">{user.notifications}</Badge>
-              )}
+              )} */}
             </Button>
           </NotificationsDropdown>
           
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             className="w-full flex items-center gap-2"
@@ -587,44 +602,12 @@ export function SidebarContent({ onClose }: { onClose?: () => void }): JSX.Eleme
           >
             <Bell className="h-4 w-4" />
             <span>{pushNotificationEnabled ? 'Disable' : 'Enable'} Push Notifications</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       <div className="border-t p-3 bg-card">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{user.major} • {user.year}</p>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <span>Sign out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ProfileDropDown/>
       </div>
 
       <div className="border-t p-3 bg-card text-center text-xs text-muted-foreground">

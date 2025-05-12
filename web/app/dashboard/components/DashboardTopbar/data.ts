@@ -43,10 +43,39 @@ export const initialNotifications: NotificationItem[] = [
   }
 ];
 
-export const quickActions: QuickAction[] = [
-  { name: "New Project", shortcut: "N P", icon: Plus },
-  { name: "Search Projects", shortcut: "S P", icon: Search },
-  { name: "Recent Activity", shortcut: "R A", icon: Clock },
-  { name: "View Messages", shortcut: "V M", icon: MessageSquare },
-  { name: "Settings", shortcut: "S T", icon: Settings }
-];
+export const getQuickActions = (): QuickAction[] => {
+  return [
+    { 
+      name: "New Project", 
+      shortcut: "Ctrl+N", 
+      icon: Plus,
+      route: "/dashboard/projects/new"
+    },
+    { 
+      name: "Search Projects", 
+      shortcut: "Ctrl+K", 
+      icon: Search,
+      route: "/dashboard/projects"
+    },
+    { 
+      name: "Recent Activity", 
+      shortcut: "Ctrl+R", 
+      icon: Clock,
+      route: "/dashboard/activity"
+    },
+    { 
+      name: "View Messages", 
+      shortcut: "Ctrl+M", 
+      icon: MessageSquare,
+      route: "/dashboard/messages"
+    },
+    { 
+      name: "Settings", 
+      shortcut: "Ctrl+,", 
+      icon: Settings,
+      route: "/dashboard/settings"
+    }
+  ];
+};
+
+export const quickActions = getQuickActions();

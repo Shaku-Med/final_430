@@ -1,6 +1,8 @@
 import React from 'react'
 import Login from './Components/Login'
 import { Metadata } from "next"
+import VerifyAdmin from '../VerifyF/VerifyAdmin'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: {
@@ -14,7 +16,10 @@ export const metadata: Metadata = {
 }
 
 
-const page = () => {
+const page = async () => {
+  let vA = await VerifyAdmin()
+  if(vA) return redirect(`/admin/dashboard`);
+
   return (
     <>
       <Login/>

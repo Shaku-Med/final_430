@@ -3,6 +3,7 @@ import EventPage from './Component/Preview'
 import IsAuth from '@/app/Auth/IsAuth/IsAuth'
 import db from '@/app/Database/Supabase/Base1'
 import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
 
 interface Event {
   event_id: string
@@ -20,7 +21,115 @@ interface Event {
   likes: number
   comments: number
   shares: number
-  user_id: string
+  user_id: string;
+  created_at?: string;
+}
+
+interface Author {
+  firstname: string;
+  lastname: string;
+  name: string;
+}
+
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const id = params.id;
+  
+  try {
+    const { data: event, error } = await db
+      .from('events')
+      .select('*')
+      .eq('event_id', id)
+      .single();
+    
+    if (error || !event) {
+      return {
+        title: 'Event Not Found',
+        description: 'The requested event could not be found.',
+      };
+    }
+    
+    const typedEvent = event as Event;
+    
+    const { data: author } = await db
+      .from('users')
+      .select('firstname, lastname, name')
+      .eq('user_id', typedEvent.user_id)
+      .single();
+    
+    const typedAuthor = author as Author | null;
+    
+    const eventDate = new Date(typedEvent.date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    
+    const description = typedEvent.description 
+      ? `${typedEvent.description.slice(0, 160)}${typedEvent.description.length > 160 ? '...' : ''}` 
+      : `Join this ${typedEvent.status} event on ${eventDate}`;
+        
+    return {
+      title: `${typedEvent.title}`,
+      description,
+      openGraph: {
+        title: typedEvent.title,
+        description,
+        type: 'article',
+        publishedTime: typedEvent.created_at || new Date().toISOString(),
+        authors: typedAuthor ? [`${typedAuthor.firstname} ${typedAuthor.lastname}`] : [],
+        images: [
+          {
+            url: (typedEvent.thumbnail?.url ? JSON.parse(typedEvent.thumbnail.url)[0] : null) || '/default-event-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: typedEvent.title,
+          }
+        ],
+        siteName: 'Your Event Platform',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: typedEvent.title,
+        description,
+        images: [(typedEvent.thumbnail?.url ? JSON.parse(typedEvent.thumbnail.url)[0] : null) || '/default-event-image.jpg'],
+      },
+      alternates: {
+        canonical: `/events/${id}`,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+      keywords: [
+        typedEvent.title,
+        typedEvent.status,
+        'event',
+        typedAuthor?.name || 'community event',
+        eventDate,
+        ...typedEvent.title.split(' ').filter((word: string) => word.length > 3)
+      ],
+      applicationName: 'Your Event Platform',
+      authors: typedAuthor ? [{ name: `${typedAuthor.firstname} ${typedAuthor.lastname}` }] : [],
+      creator: typedAuthor ? `${typedAuthor.firstname} ${typedAuthor.lastname}` : 'Event Platform',
+      publisher: 'Your Event Platform',
+      formatDetection: {
+        telephone: false,
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'Event Details',
+      description: 'View event details and information',
+    };
+  }
 }
 
 interface SuggestedEvent extends Event {

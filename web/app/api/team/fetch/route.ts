@@ -17,7 +17,19 @@ export async function GET(request: Request) {
     // Fetch team members with pagination
     const { data: teamMembers, error, count } = await db
       .from('team_members')
-      .select('*', { count: 'exact' })
+      .select(`
+        description,
+        user_id,
+        name,
+        role,
+        socialLinks,
+        expertise,
+        users:user_id (
+          firstname,
+          lastname,
+          profile
+        )
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

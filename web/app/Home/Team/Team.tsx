@@ -1,127 +1,174 @@
-import React from 'react';
+'use client'
+import React, { useLayoutEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Linkedin, Twitter, Instagram, Github, Link2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface TeamMember {
   id: string;
   name: string;
   role: string;
-  socialLinks: {
-    linkedin?: string;
-    twitter?: string;
-    instagram?: string;
-  };
+  description: string;
+  expertise: string[];
+  information: string;
+  user_id: string;
+  attachments: any[];
+  socialLinks: { platform: string; url: string }[];
 }
 
 const Team: React.FC = () => {
-  const teamMembers: TeamMember[] = [
-    { 
-      id: "mohamed-amara", 
-      name: "Mohamed Amara", 
-      role: "Full Stack Developer",
-      socialLinks: {
-        linkedin: "https://linkedin.com/in/mohamed-amara",
-        twitter: "https://twitter.com/mohamed_amara",
-        instagram: "https://instagram.com/mohamed_amara"
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useLayoutEffect(() => {
+    const team_members = (window as any)._team_members;
+    if (team_members) {
+      try {
+        const parsedTeamMembers = typeof team_members === 'string' ? JSON.parse(team_members) : team_members;
+        setTeamMembers(parsedTeamMembers);
+      } catch (error) {
+        console.error('Error parsing team members data:', error);
       }
-    },
-    { 
-      id: "joe-he", 
-      name: "Joe He", 
-      role: "UI Design & QA",
-      socialLinks: {
-        linkedin: "https://linkedin.com/in/joe-he",
-        twitter: "https://twitter.com/joe_he",
-        instagram: "https://instagram.com/joe_he"
+    }
+  }, []);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
       }
-    },
-    { 
-      id: "salim-noma", 
-      name: "Salim Noma", 
-      role: "Feature Integration & Documentation",
-      socialLinks: {
-        linkedin: "https://linkedin.com/in/salim-noma",
-        twitter: "https://twitter.com/salim_noma",
-        instagram: "https://instagram.com/salim_noma"
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 12
       }
-    },
-    { 
-      id: "idris-hassan", 
-      name: "Idris Hassan", 
-      role: "Backend Developer",
-      socialLinks: {
-        linkedin: "https://linkedin.com/in/idris-hassan",
-        twitter: "https://twitter.com/idris_hassan",
-        instagram: "https://instagram.com/idris_hassan"
+    }
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
       }
-    },
-  ];
+    }
+  };
+
+  // Function to get the appropriate social icon
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'linkedin':
+        return <Linkedin className="w-5 h-5" />;
+      case 'twitter':
+        return <Twitter className="w-5 h-5" />;
+      case 'instagram':
+        return <Instagram className="w-5 h-5" />;
+      case 'github':
+        return <Github className="w-5 h-5" />;
+      default:
+        return <Link2 className="w-5 h-5" />;
+    }
+  };
 
   return (
-    <section className="w-full py-16 md:py-24 lg:py-32 bg-card/50" id="team">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-6 text-center">
-          <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight md:text-5xl">Our Team</h2>
-            <p className="max-w-2xl text-muted-foreground md:text-lg mx-auto">
-              Meet the talented individuals behind CS Events Spotlight
-            </p>
+    <>
+    {
+      teamMembers.length > 0 && (
+        <section className="w-full py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background to-background/90" id="team">
+          <div className="container mx-auto px-4 md:px-6">
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={headerVariants}
+              className="flex flex-col items-center justify-center space-y-8 text-center"
+            >
+              <div className="space-y-3">
+                <h2 className="text-3xl font-bold tracking-tight md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                  Our Team
+                </h2>
+                <p className="max-w-2xl text-muted-foreground md:text-lg mx-auto">
+                  Meet the talented individuals behind CS Events Spotlight
+                </p>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-16"
+            >
+              {teamMembers.map((member) => (
+                <motion.div key={member.id} variants={itemVariants}>
+                  <Link href={`/teams/${member.user_id}`} className="block group">
+                    <Card className="overflow-hidden border border-border/50 backdrop-blur-sm bg-background/80 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 cursor-pointer h-full">
+                      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <CardHeader className="flex flex-col items-center pb-2">
+                        <motion.div 
+                          whileHover={{ y: -5 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <Avatar className="h-28 w-28 border-4 border-primary/20 group-hover:border-primary/40 transition-all duration-300 shadow-lg">
+                            <AvatarFallback className="bg-primary/10 text-primary text-2xl font-medium">
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                        </motion.div>
+                      </CardHeader>
+                      <CardContent className="text-center">
+                        <h3 className="font-bold text-xl group-hover:text-primary transition-colors">
+                          {member.name}
+                        </h3>
+                        <p className="text-sm text-primary/70 font-medium mt-1">
+                          {member.role}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="flex justify-center pt-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex gap-2">
+                          {member.socialLinks.map((link) => 
+                            link.url && (
+                              <motion.a 
+                                key={link.platform}
+                                href={link.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="rounded-full p-2 hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {getSocialIcon(link.platform)}
+                              </motion.a>
+                            )
+                          )}
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-12">
-          {teamMembers.map((member) => (
-            <Link href={`/team/${member.id}`} key={member.id} passHref legacyBehavior>
-              <a className="block group cursor-pointer">
-                <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
-                  <CardHeader className="flex flex-col items-center pb-2">
-                    <Avatar className="h-24 w-24 border-4 border-primary/10">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xl font-medium">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{member.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{member.role}</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-center pt-0" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex gap-4">
-                      {member.socialLinks.linkedin && (
-                        <a href={member.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="rounded-full p-2 hover:bg-primary/10 transition-colors">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                            <rect x="2" y="9" width="4" height="12"></rect>
-                            <circle cx="4" cy="4" r="2"></circle>
-                          </svg>
-                        </a>
-                      )}
-                      {member.socialLinks.twitter && (
-                        <a href={member.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="rounded-full p-2 hover:bg-primary/10 transition-colors">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                          </svg>
-                        </a>
-                      )}
-                      {member.socialLinks.instagram && (
-                        <a href={member.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="rounded-full p-2 hover:bg-primary/10 transition-colors">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                          </svg>
-                        </a>
-                      )}
-                    </div>
-                  </CardFooter>
-                </Card>
-              </a>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
+        </section>
+      )
+    }
+    </>
   );
 };
 

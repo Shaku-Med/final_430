@@ -11,4 +11,5 @@ export interface NotificationItem {
     name: string;
     shortcut: string;
     icon: React.ComponentType<{ className?: string }>;
+    route: string;
   }

@@ -21,7 +21,7 @@ export async function getClientIP(headers: any) {
     );
 }
 
-const SetToken = async (options?: object, authKeys?: any[], addData?: object) => {
+const SetToken = async (options?: object, authKeys?: any[], addData?: object, setUA?: boolean) => {
   try {
         let h = await headers()
         let gip = await getClientIP(h)
@@ -43,7 +43,7 @@ const SetToken = async (options?: object, authKeys?: any[], addData?: object) =>
             }
         }
         // 
-        let k = `${o['user-agent']}+${process.env.TOKEN1}`
+        let k = `${!setUA ? o['user-agent'] : ''}+${process.env.TOKEN1}`
         // 
         let keys = [k, process.env.TOKEN2]
         if(authKeys){
