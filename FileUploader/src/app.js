@@ -26,7 +26,7 @@ const limiter = rateLimit({
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'],
+    origin: "*",
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization', "access-token"],
     credentials: true

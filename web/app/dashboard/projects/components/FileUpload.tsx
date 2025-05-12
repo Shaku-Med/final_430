@@ -121,7 +121,7 @@ export function FileUpload({
       formData.append('fileName', file.name);
       formData.append('id', fileId);
 
-      const response = await fetch('http://localhost:3001/upload', {
+      const response = await fetch('http://98.81.148.153/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
