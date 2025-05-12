@@ -6,14 +6,6 @@ import { SubmitMail } from '@/app/Functions/Mailing/Mail'
 import EventUpdateNotificationEmail from '@/app/Functions/Mailing/Components/EventUpdateNotification'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import webpush from 'web-push'
-
-// Configure web-push with your VAPID keys
-webpush.setVapidDetails(
-  'mailto:jujubelt124@gmail.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
 
 interface AuthUser {
   user_id: string;
@@ -214,42 +206,6 @@ export async function PUT(
                   is_read: false,
                   created_at: new Date().toISOString()
                 })
-
-              // Send push notification
-              try {
-                // Get user's push subscription
-                const { data: subscription } = await db
-                  .from('push_subscriptions')
-                  .select('*')
-                  .eq('user_id', user.user_id)
-                  .single()
-
-                if (subscription) {
-                  await webpush.sendNotification(
-                    {
-                      endpoint: subscription.endpoint,
-                      keys: {
-                        p256dh: subscription.p256dh,
-                        auth: subscription.auth
-                      }
-                    },
-                    JSON.stringify({
-                      title: 'Event Update',
-                      body: `The event "${title}" has been updated${Object.entries(updateDetails)
-                        .filter(([_, value]) => value !== undefined)
-                        .map(([key]) => ` (${key})`)
-                        .join(',')}`,
-                      icon: '/icon-512.png',
-                      data: {
-                        url: `/dashboard/events/${params.id}`
-                      }
-                    })
-                  )
-                }
-              } catch (error) {
-                console.error('Error sending push notification:', error)
-                // Don't fail the update if push notification fails
-              }
             }
           }
         }
@@ -269,4 +225,4 @@ export async function PUT(
       message: error.message
     }, { status: 500 })
   }
-} 
+}

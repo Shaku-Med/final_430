@@ -14,7 +14,7 @@ import { FileUpload } from "../../../projects/components/FileUpload";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import SetQuickToken from '@/app/account/Actions/SetQuickToken';
-import webpush from 'web-push';
+// import webpush from 'web-push';
 
 interface FileChunk {
   id: string;
