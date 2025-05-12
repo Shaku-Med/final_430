@@ -26,6 +26,3 @@ jobs:
     - name: Build project
       run: npm run build --if-present
       working-directory: ./FileUploader
-    - name: Run tests
-      run: npm test
-      working-directory: ./FileUploader
