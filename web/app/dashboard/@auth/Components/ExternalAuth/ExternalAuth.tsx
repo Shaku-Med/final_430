@@ -11,7 +11,7 @@ const ExternalAuth = () => {
   return (
     <>
         <div className="grid grid-cols-2 gap-4 overflow-auto">
-            <Github pk='' redirectUri={`http://localhost:3000`} clientId={`${cgid}`}/>
+            <Github pk='' redirectUri={`https://spotlight.medzyamara.dev`} clientId={`${cgid}`}/>
             <GoogleOAuthProvider clientId={`${cgoogleid}`}>
                 <Google pk={`hello`}/>
             </GoogleOAuthProvider>
