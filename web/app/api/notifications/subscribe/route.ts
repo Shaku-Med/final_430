@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import webpush from 'web-push';
+// import webpush from 'web-push';
 import IsAuth from '@/app/Auth/IsAuth/IsAuth';
 import db from '@/app/Database/Supabase/Base1';
 import { v4 as uuidv4 } from 'uuid';
 
 // Configure web-push with your VAPID keys
-webpush.setVapidDetails(
-  'mailto:jujubelt124@gmail.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+// webpush.setVapidDetails(
+//   'mailto:jujubelt124@gmail.com',
+//   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+//   process.env.VAPID_PRIVATE_KEY!
+// );
 
 interface User {
   user_id: string;
