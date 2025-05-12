@@ -11,7 +11,7 @@ try {
   }
   db = createClient(supabaseUrl, supabaseKey);
 } catch (error) {
-  console.error('Failed to initialize Supabase client:', error);
+  // console.error('Failed to initialize Supabase client:', error);
   db = {
     from: () => ({
       select: () => Promise.reject(new Error('Supabase client not initialized')),
