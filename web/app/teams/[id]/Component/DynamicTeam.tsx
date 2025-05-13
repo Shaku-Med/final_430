@@ -127,12 +127,12 @@ const DynamicTeam = ({ data }: { data: Data }) => {
               ))}
             </div>
           </div>
-          {data.attachments && data.attachments.length > 0 && (
+          {/* {data.attachments && data.attachments.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-3">Attachments</h3>
               <Attachments attachments={data.attachments} />
             </div>
-          )}
+          )} */}
         </motion.div>
 
         <motion.div 
