@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/dashboard/@auth/Components/ExternalAuth/Google/Google.tsx", "app/dashboard/@auth/verify", "app/account/verify/Action", "app/LoadUi/Load.jsx", "app/LoadUi/Load.jsx"],
   "exclude": ["node_modules"]
 }
