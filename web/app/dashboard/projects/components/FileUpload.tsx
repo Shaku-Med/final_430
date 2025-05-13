@@ -123,7 +123,7 @@ export function FileUpload({
       formData.append('fileName', file.name);
       formData.append('id', fileId);
 
-      const response = await fetch('http://98.81.148.153/upload', {
+      const response = await fetch('http://medzyaamara.com/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
