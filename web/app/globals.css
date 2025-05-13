@@ -345,27 +345,31 @@ img {
   -webkit-user-select: none !important;
 }
 
+
 @supports (scrollbar-color: auto) {
   * {
       scrollbar-color: var(--muted) var(--background);
       scrollbar-width: thin;
-      /* transition: all .3s ease-in-out; */
   }
-  /* *:not(.empt_ys):hover {
-      scrollbar-width: thin;
-  } */
    html,body {
     scrollbar-color: var(--muted) var(--background);
       scrollbar-width: thin;
    }
+   
+   body::-webkit-scrollbar {
+     display: none !important;
+   }
 }
+
 
 @supports selector(::-webkit-scrollbar) {
   *::-webkit-scrollbar {
       background: var(--background);
+      width: 5px;
   }
   *::-webkit-scrollbar-thumb {
       background: var(--muted);
+      border-radius: 10px;
   }
 }
 

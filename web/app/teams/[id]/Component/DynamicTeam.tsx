@@ -53,12 +53,12 @@ const DynamicTeam = ({ data }: { data: Data }) => {
       transition={{ duration: 0.5 }}
       className="max-w-5xl mx-auto py-12"
     >
-      <div className="grid md:grid-cols-12 gap-12">
+      <div className=" flex lg:flex-row flex-col gap-12">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="md:col-span-4 flex flex-col items-center md:items-start"
+          className="lg:col-span-4 flex flex-col items-center lg:items-start"
         >
           <div className="relative mb-6 group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary/60 to-primary/20 rounded-full blur opacity-70 group-hover:opacity-100 transition duration-500"></div>
@@ -152,13 +152,13 @@ const DynamicTeam = ({ data }: { data: Data }) => {
           </div>
 
           {data.information && (
-            <div>
+            <div className=' max-w-[100%] overflow-auto'>
               <h3 className="text-2xl font-semibold mb-4 inline-block relative">
                 Additional Information
                 <span className="absolute -bottom-1 left-0 w-1/3 h-0.5 bg-primary"></span>
               </h3>
               <div className="prose dark:prose-invert max-w-none">
-                <Markdown source={data.information} />
+                <Markdown className='w-full' source={data.information} />
               </div>
             </div>
           )}
