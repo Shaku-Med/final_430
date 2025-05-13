@@ -1,0 +1,564 @@
+{
+  "info": {
+    "name": "Project Management API",
+    "description": "API for managing projects, events, and user profiles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Verify Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-code"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New Project\",\n    \"description\": \"Project description\",\n    \"startDate\": \"2024-03-20T00:00:00Z\",\n    \"endDate\": \"2024-04-20T00:00:00Z\",\n    \"status\": \"pending\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/project",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project"]
+            }
+          }
+        },
+        {
+          "name": "Get Projects",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/project?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/project/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Project\",\n    \"description\": \"Updated description\",\n    \"status\": \"in_progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/project/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/project/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Project Members",
+      "item": [
+        {
+          "name": "Get Project Members",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projectmember/:projectId/members?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projectmember", ":projectId", "members"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Project Member",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/projectmember/:projectId/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projectmember", ":projectId", "members"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Project Member",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projectmember/:projectId/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projectmember", ":projectId", "members"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "project-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"New Event\",\n    \"description\": \"Event description\",\n    \"date\": \"2024-03-20T00:00:00Z\",\n    \"location\": \"Event Location\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "Get Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events?limit=10&offset=0&startDate=2024-03-01&endDate=2024-04-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-03-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-04-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated Event\",\n    \"description\": \"Updated description\",\n    \"location\": \"New Location\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register for Event",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "register"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unregister from Event",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "register"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Event Registrations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/registrations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "registrations"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Event Comments",
+      "item": [
+        {
+          "name": "Add Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"This is a comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "comments"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Comments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/comments?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "comments"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/events/:id/comments/:commentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", ":id", "comments", ":commentId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid"
+                },
+                {
+                  "key": "commentId",
+                  "value": "comment-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/:id/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", ":id", "read"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "notification-uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "notification-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    }
+  ]
+} 
