@@ -1,0 +1,44 @@
+flowchart TD
+    subgraph Client
+        A[Web Browser] --> B[Angular/React Frontend]
+    end
+    
+    subgraph Server
+        C[Nginx Web Server]
+        D[Node.js/Express API]
+        E[Authentication Services]
+        F[Event Management Services]
+        G[Notification Services]
+        H[Forum Services]
+        I[Project Services]
+        J[Code Collaboration Services]
+    end
+    
+    subgraph Database
+        K[MongoDB]
+    end
+    
+    subgraph ExternalServices
+        L[Email Service]
+        M[Push Notification Service]
+        N[Cloud Storage]
+    end
+    
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    D --> G
+    D --> H
+    D --> I
+    D --> J
+    E --> K
+    F --> K
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+    G --> L
+    G --> M
+    I --> N
+    J --> N
