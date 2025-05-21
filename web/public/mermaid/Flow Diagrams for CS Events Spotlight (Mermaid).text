@@ -1,0 +1,18 @@
+flowchart TD
+    A[Start] --> B{User has account?}
+    B -->|No| C[Register]
+    B -->|Yes| D[Login]
+    C --> E[Enter registration details]
+    E --> F[Validate input]
+    F -->|Invalid| E
+    F -->|Valid| G[Create user in database]
+    G --> H[Send verification email]
+    H --> I[Verify email]
+    I --> D
+    D --> J[Enter login credentials]
+    J --> K[Validate credentials]
+    K -->|Invalid| J
+    K -->|Valid| L[Generate JWT token]
+    L --> M[Store token in local storage]
+    M --> N[Redirect to dashboard]
+    N --> O[End]
