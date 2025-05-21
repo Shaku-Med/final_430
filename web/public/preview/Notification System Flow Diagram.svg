@@ -1,0 +1,599 @@
+<svg aria-roledescription="flowchart-v2" role="graphics-document document" viewBox="-8 -8 811.015625 1218.734375" style="max-width: 811.015625px;" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" id="mermaid-1747799282236">
+  <style>
+    #mermaid-1747799282236 {
+      font-family: monospace;
+      font-size: 14px;
+      fill: #abb2bf;
+    }
+
+    #mermaid-1747799282236 .error-icon {
+      fill: #abb2bf;
+    }
+
+    #mermaid-1747799282236 .error-text {
+      fill: #4b5263;
+      stroke: #4b5263;
+    }
+
+    #mermaid-1747799282236 .edge-thickness-normal {
+      stroke-width: 2px;
+    }
+
+    #mermaid-1747799282236 .edge-thickness-thick {
+      stroke-width: 3.5px;
+    }
+
+    #mermaid-1747799282236 .edge-pattern-solid {
+      stroke-dasharray: 0;
+    }
+
+    #mermaid-1747799282236 .edge-pattern-dashed {
+      stroke-dasharray: 3;
+    }
+
+    #mermaid-1747799282236 .edge-pattern-dotted {
+      stroke-dasharray: 2;
+    }
+
+    #mermaid-1747799282236 .marker {
+      fill: #636D83;
+      stroke: #636D83;
+    }
+
+    #mermaid-1747799282236 .marker.cross {
+      stroke: #636D83;
+    }
+
+    #mermaid-1747799282236 svg {
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    #mermaid-1747799282236 .label {
+      font-family: monospace;
+      color: #ABB2BF;
+    }
+
+    #mermaid-1747799282236 .cluster-label text {
+      fill: #4b5263;
+    }
+
+    #mermaid-1747799282236 .cluster-label span,
+    #mermaid-1747799282236 p {
+      color: #4b5263;
+    }
+
+    #mermaid-1747799282236 .label text,
+    #mermaid-1747799282236 span,
+    #mermaid-1747799282236 p {
+      fill: #ABB2BF;
+      color: #ABB2BF;
+    }
+
+    #mermaid-1747799282236 .node rect,
+    #mermaid-1747799282236 .node circle,
+    #mermaid-1747799282236 .node ellipse,
+    #mermaid-1747799282236 .node polygon,
+    #mermaid-1747799282236 .node path {
+      fill: #333842;
+      stroke: #636D83;
+      stroke-width: 1px;
+    }
+
+    #mermaid-1747799282236 .flowchart-label text {
+      text-anchor: middle;
+    }
+
+    #mermaid-1747799282236 .node .katex path {
+      fill: #000;
+      stroke: #000;
+      stroke-width: 1px;
+    }
+
+    #mermaid-1747799282236 .node .label {
+      text-align: center;
+    }
+
+    #mermaid-1747799282236 .node.clickable {
+      cursor: pointer;
+    }
+
+    #mermaid-1747799282236 .arrowheadPath {
+      fill: #0b0b0b;
+    }
+
+    #mermaid-1747799282236 .edgePath .path {
+      stroke: #636D83;
+      stroke-width: 2.0px;
+    }
+
+    #mermaid-1747799282236 .flowchart-link {
+      stroke: #636D83;
+      fill: none;
+    }
+
+    #mermaid-1747799282236 .edgeLabel {
+      background-color: #282C34;
+      text-align: center;
+    }
+
+    #mermaid-1747799282236 .edgeLabel rect {
+      opacity: 0.5;
+      background-color: #282C34;
+      fill: #282C34;
+    }
+
+    #mermaid-1747799282236 .labelBkg {
+      background-color: rgba(40, 44, 52, 0.5);
+    }
+
+    #mermaid-1747799282236 .cluster rect {
+      fill: #abb2bf;
+      stroke: #4b5263;
+      stroke-width: 1px;
+    }
+
+    #mermaid-1747799282236 .cluster text {
+      fill: #4b5263;
+    }
+
+    #mermaid-1747799282236 .cluster span,
+    #mermaid-1747799282236 p {
+      color: #4b5263;
+    }
+
+    #mermaid-1747799282236 div.mermaidTooltip {
+      position: absolute;
+      text-align: center;
+      max-width: 200px;
+      padding: 2px;
+      font-family: monospace;
+      font-size: 12px;
+      background: #abb2bf;
+      border: 1px solid #4b5263;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #mermaid-1747799282236 .flowchartTitleText {
+      text-anchor: middle;
+      font-size: 18px;
+      fill: #abb2bf;
+    }
+
+    #mermaid-1747799282236 .label foreignObject {
+      overflow: visible;
+    }
+
+    #mermaid-1747799282236 :root {
+      --mermaid-font-family: "trebuchet ms", verdana, arial, sans-serif;
+    }
+  </style>
+  <g>
+    <marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="6" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1747799282236_flowchart-pointEnd">
+      <path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 0 L 10 5 L 0 10 z"></path>
+    </marker>
+    <marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="4.5" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1747799282236_flowchart-pointStart">
+      <path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 5 L 10 10 L 10 0 z"></path>
+    </marker>
+    <marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="11" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1747799282236_flowchart-circleEnd">
+      <circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle>
+    </marker>
+    <marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="-1" viewBox="0 0 10 10" class="marker flowchart" id="mermaid-1747799282236_flowchart-circleStart">
+      <circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle>
+    </marker>
+    <marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="12" viewBox="0 0 11 11" class="marker cross flowchart" id="mermaid-1747799282236_flowchart-crossEnd">
+      <path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path>
+    </marker>
+    <marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="-1" viewBox="0 0 11 11" class="marker cross flowchart" id="mermaid-1747799282236_flowchart-crossStart">
+      <path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path>
+    </marker>
+    <g class="root">
+      <g class="clusters"></g>
+      <g class="edgePaths">
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-B" id="L-A-B-0" d="M324.578,22.374L285.203,28.811C245.828,35.249,167.078,48.125,127.703,57.846C88.328,67.567,88.328,74.133,88.328,77.417L88.328,80.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-C" id="L-A-C-0" d="M324.835,36L318.702,40.167C312.57,44.333,300.304,52.667,294.172,60.117C288.039,67.567,288.039,74.133,288.039,77.417L288.039,80.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-D" id="L-A-D-0" d="M378.078,28.507L391.866,33.922C405.654,39.338,433.229,50.169,447.017,58.868C460.805,67.567,460.805,74.133,460.805,77.417L460.805,80.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-E" id="L-A-E-0" d="M378.078,21.462L428.999,28.051C479.919,34.641,581.76,47.821,632.681,57.694C683.602,67.567,683.602,74.133,683.602,77.417L683.602,80.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-B LE-F" id="L-B-F-0" d="M88.328,122L88.328,126.167C88.328,130.333,88.328,138.667,121.057,147.753C153.787,156.838,219.245,166.677,251.975,171.596L284.704,176.515"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-C LE-F" id="L-C-F-0" d="M288.039,122L288.039,126.167C288.039,130.333,288.039,138.667,295.619,146.606C303.198,154.546,318.358,162.092,325.937,165.865L333.517,169.638"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-D LE-F" id="L-D-F-0" d="M460.805,122L460.805,126.167C460.805,130.333,460.805,138.667,453.225,146.606C445.645,154.546,430.486,162.092,422.906,165.865L415.327,169.638"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-E LE-F" id="L-E-F-0" d="M683.602,122L683.602,126.167C683.602,130.333,683.602,138.667,647.026,147.92C610.45,157.174,537.299,167.347,500.724,172.434L464.148,177.521"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-F LE-G" id="L-F-G-0" d="M374.422,208L374.422,212.167C374.422,216.333,374.422,224.667,374.422,232.117C374.422,239.567,374.422,246.133,374.422,249.417L374.422,252.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-G LE-H" id="L-G-H-0" d="M374.422,294L374.422,298.167C374.422,302.333,374.422,310.667,374.422,318.117C374.422,325.567,374.422,332.133,374.422,335.417L374.422,338.7"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-H LE-I" id="L-H-I-0" d="M374.422,380L374.422,384.167C374.422,388.333,374.422,396.667,374.488,404.2C374.554,411.734,374.686,418.467,374.752,421.834L374.818,425.201"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-I LE-J" id="L-I-J-0" d="M311.204,602.516L291.662,618.969C272.12,635.422,233.037,668.328,213.495,689.815C193.953,711.301,193.953,721.368,193.953,726.401L193.953,731.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-I LE-K" id="L-I-K-0" d="M359.496,650.809L358.135,659.213C356.774,667.617,354.051,684.426,352.69,697.863C351.328,711.301,351.328,721.368,351.328,726.401L351.328,731.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-I LE-L" id="L-I-L-0" d="M438.64,602.516L458.015,618.969C477.39,635.422,516.14,668.328,535.515,689.815C554.891,711.301,554.891,721.368,554.891,726.401L554.891,731.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-J LE-M" id="L-J-M-0" d="M193.953,772.734L193.953,776.901C193.953,781.068,193.953,789.401,208.351,797.502C222.748,805.602,251.543,813.47,265.94,817.404L280.338,821.337"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-K LE-M" id="L-K-M-0" d="M351.328,772.734L351.328,776.901C351.328,781.068,351.328,789.401,351.328,796.851C351.328,804.301,351.328,810.868,351.328,814.151L351.328,817.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-L LE-M" id="L-L-M-0" d="M554.891,772.734L554.891,776.901C554.891,781.068,554.891,789.401,536.03,797.552C517.169,805.703,479.447,813.671,460.587,817.655L441.726,821.639"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-M LE-N" id="L-M-N-0" d="M351.328,858.734L351.328,862.901C351.328,867.068,351.328,875.401,351.328,882.851C351.328,890.301,351.328,896.868,351.328,900.151L351.328,903.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-N LE-O" id="L-N-O-0" d="M351.328,944.734L351.328,948.901C351.328,953.068,351.328,961.401,351.328,968.851C351.328,976.301,351.328,982.868,351.328,986.151L351.328,989.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-O LE-P" id="L-O-P-0" d="M351.328,1030.734L351.328,1034.901C351.328,1039.068,351.328,1047.401,351.328,1054.851C351.328,1062.301,351.328,1068.868,351.328,1072.151L351.328,1075.434"></path>
+        <path marker-end="url(#mermaid-1747799282236_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-P LE-Q" id="L-P-Q-0" d="M351.328,1116.734L351.328,1120.901C351.328,1125.068,351.328,1133.401,351.328,1140.851C351.328,1148.301,351.328,1154.868,351.328,1158.151L351.328,1161.434"></path>
+      </g>
+      <g class="edgeLabels">
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(193.953125, 701.234375)" class="edgeLabel">
+          <g transform="translate(-42.3359375, -10.5)" class="label">
+            <foreignObject height="21" width="84.671875">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel">In-app only</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 701.234375)" class="edgeLabel">
+          <g transform="translate(-19.25, -10.5)" class="label">
+            <foreignObject height="21" width="38.5">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel">Email</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(554.890625, 701.234375)" class="edgeLabel">
+          <g transform="translate(-15.3984375, -10.5)" class="label">
+            <foreignObject height="21" width="30.796875">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel">Both</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g transform="translate(0, 0)" class="label">
+            <foreignObject height="0" width="0">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="edgeLabel"></span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+      </g>
+      <g class="nodes">
+        <g transform="translate(351.328125, 18)" data-id="A" data-node="true" id="flowchart-A-458" class="node default default flowchart-label">
+          <rect height="36" width="53.5" y="-18" x="-26.75" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-19.25, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="38.5">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Start</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(88.328125, 104)" data-id="B" data-node="true" id="flowchart-B-459" class="node default default flowchart-label">
+          <rect height="36" width="176.65625" y="-18" x="-88.328125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-80.828125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="161.65625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Event created/updated</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(288.0390625, 104)" data-id="C" data-node="true" id="flowchart-C-461" class="node default default flowchart-label">
+          <rect height="36" width="122.765625" y="-18" x="-61.3828125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-53.8828125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="107.765625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">New forum post</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(460.8046875, 104)" data-id="D" data-node="true" id="flowchart-D-463" class="node default default flowchart-label">
+          <rect height="36" width="122.765625" y="-18" x="-61.3828125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-53.8828125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="107.765625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Project update</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(683.6015625, 104)" data-id="E" data-node="true" id="flowchart-E-465" class="node default flowchart-label">
+          <rect height="36" width="222.828125" y="-18" x="-111.4140625" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-103.9140625, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="207.828125">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Code collaboration activity</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(374.421875, 190)" data-id="F" data-node="true" id="flowchart-F-467" class="node default default flowchart-label">
+          <rect height="36" width="168.953125" y="-18" x="-84.4765625" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-76.9765625, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="153.953125">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Get subscribed users</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(374.421875, 276)" data-id="G" data-node="true" id="flowchart-G-475" class="node default default flowchart-label">
+          <rect height="36" width="215.140625" y="-18" x="-107.5703125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-100.0703125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="200.140625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Create notification record</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(374.421875, 362)" data-id="H" data-node="true" id="flowchart-H-477" class="node default default flowchart-label">
+          <rect height="36" width="145.859375" y="-18" x="-72.9296875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-65.4296875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="130.859375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Store in database</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(374.421875, 547.8671875)" data-id="I" data-node="true" id="flowchart-I-479" class="node default flowchart-label">
+          <polygon style="" transform="translate(-117.8671875,117.8671875)" class="label-container" points="117.8671875,0 235.734375,-117.8671875 117.8671875,-235.734375 0,-117.8671875"></polygon>
+          <g transform="translate(-92.3671875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="184.734375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Notification preferences</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(193.953125, 754.734375)" data-id="J" data-node="true" id="flowchart-J-481" class="node default default flowchart-label">
+          <rect height="36" width="122.765625" y="-18" x="-61.3828125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-53.8828125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="107.765625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Mark as unread</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 754.734375)" data-id="K" data-node="true" id="flowchart-K-483" class="node default default flowchart-label">
+          <rect height="36" width="91.984375" y="-18" x="-45.9921875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-38.4921875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="76.984375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Send email</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(554.890625, 754.734375)" data-id="L" data-node="true" id="flowchart-L-485" class="node default default flowchart-label">
+          <rect height="36" width="215.140625" y="-18" x="-107.5703125" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-100.0703125, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="200.140625">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Send email and mark unread</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 840.734375)" data-id="M" data-node="true" id="flowchart-M-487" class="node default default flowchart-label">
+          <rect height="36" width="222.828125" y="-18" x="-111.4140625" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-103.9140625, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="207.828125">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Update notification counter</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 926.734375)" data-id="N" data-node="true" id="flowchart-N-493" class="node default default flowchart-label">
+          <rect height="36" width="207.4375" y="-18" x="-103.71875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-96.21875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="192.4375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">User checks notifications</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 1012.734375)" data-id="O" data-node="true" id="flowchart-O-495" class="node default default flowchart-label">
+          <rect height="36" width="107.375" y="-18" x="-53.6875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-46.1875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="92.375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Mark as read</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 1098.734375)" data-id="P" data-node="true" id="flowchart-P-497" class="node default default flowchart-label">
+          <rect height="36" width="199.734375" y="-18" x="-99.8671875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-92.3671875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="184.734375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">Remove from unread count</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+        <g transform="translate(351.328125, 1184.734375)" data-id="Q" data-node="true" id="flowchart-Q-499" class="node default default flowchart-label">
+          <rect height="36" width="38.09375" y="-18" x="-19.046875" ry="0" rx="0" style="" class="basic label-container"></rect>
+          <g transform="translate(-11.546875, -10.5)" style="" class="label">
+            <rect></rect>
+            <foreignObject height="21" width="23.09375">
+              <div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml">
+                <span class="nodeLabel">End</span>
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
