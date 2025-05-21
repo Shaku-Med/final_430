@@ -1,0 +1,18 @@
+flowchart TD
+    A[Start] --> B{Authenticated?}
+    B -->|No| C[Redirect to login]
+    B -->|Yes| D[Access event creation form]
+    D --> E[Fill in event details]
+    E --> F[Validate input]
+    F -->|Invalid| E
+    F -->|Valid| G[Submit event data]
+    G --> H[Store event in database]
+    H --> I[Generate event URL/ID]
+    I --> J[Notify subscribers]
+    J --> K[Show success message]
+    K --> L[View created event]
+    L --> M{Need to edit?}
+    M -->|Yes| N[Edit event details]
+    N --> O[Update event in database]
+    O --> J
+    M -->|No| P[End]
