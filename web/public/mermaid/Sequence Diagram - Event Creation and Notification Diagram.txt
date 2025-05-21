@@ -1,0 +1,34 @@
+sequenceDiagram
+    actor User
+    participant UI as User Interface
+    participant API as API Gateway
+    participant Auth as Auth Service
+    participant ES as Event Service
+    participant NS as Notification Service
+    participant DB as Database
+    
+    User->>UI: Login
+    UI->>API: Authentication Request
+    API->>Auth: Verify Credentials
+    Auth->>DB: Query User Data
+    DB-->>Auth: Return User Data
+    Auth-->>API: Generate JWT Token
+    API-->>UI: Return Authentication Response
+    UI-->>User: Login Success
+    
+    User->>UI: Create Event
+    UI->>API: Create Event Request
+    API->>Auth: Validate Token
+    Auth-->>API: Token Valid
+    API->>ES: Create Event
+    ES->>DB: Store Event Data
+    DB-->>ES: Confirm Storage
+    ES->>NS: Create Event Notifications
+    NS->>DB: Store Notifications
+    DB-->>NS: Confirm Storage
+    NS-->>ES: Notifications Created
+    ES-->>API: Event Created
+    API-->>UI: Event Creation Success
+    UI-->>User: Show Success Message
+    
+    Note over NS,DB: Notification service sends alerts to subscribed users
