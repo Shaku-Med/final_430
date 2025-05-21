@@ -1,0 +1,27 @@
+flowchart TD
+    A[Start] --> B[Event created/updated]
+    A --> C[New forum post]
+    A --> D[Project update]
+    A --> E[Code collaboration activity]
+    
+    B --> F[Get subscribed users]
+    C --> F
+    D --> F
+    E --> F
+    
+    F --> G[Create notification record]
+    G --> H[Store in database]
+    
+    H --> I{Notification preferences}
+    I -->|In-app only| J[Mark as unread]
+    I -->|Email| K[Send email]
+    I -->|Both| L[Send email and mark unread]
+    
+    J --> M[Update notification counter]
+    K --> M
+    L --> M
+    
+    M --> N[User checks notifications]
+    N --> O[Mark as read]
+    O --> P[Remove from unread count]
+    P --> Q[End]
