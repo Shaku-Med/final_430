@@ -1,0 +1,38 @@
+classDiagram
+    class Frontend {
+        +User Interface
+        +Event View
+        +Forum View
+        +Project Showcase
+        +Notifications View
+        +Code Collaboration UI
+    }
+    
+    class Backend {
+        +API Gateway
+        +Authentication Service
+        +Event Service
+        +Notification Service
+        +Forum Service
+        +Project Service
+        +Code Collaboration Service
+    }
+    
+    class Database {
+        +User Collection
+        +Event Collection
+        +Notification Collection
+        +Project Collection
+        +CodeSnippet Collection
+        +Forum Collection
+    }
+    
+    class ExternalServices {
+        +Email Service
+        +Push Notification Service
+        +File Storage
+    }
+    
+    Frontend -- Backend : HTTP/WebSocket
+    Backend -- Database : Database Queries
+    Backend -- ExternalServices : API Calls
