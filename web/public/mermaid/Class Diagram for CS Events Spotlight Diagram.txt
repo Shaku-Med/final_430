@@ -1,0 +1,102 @@
+classDiagram
+    class User {
+        -userId: string
+        -email: string
+        -password: string
+        -name: string
+        -role: string
+        +register()
+        +login()
+        +updateProfile()
+        +getEventSubscriptions()
+    }
+    
+    class Event {
+        -eventId: string
+        -title: string
+        -description: string
+        -date: Date
+        -location: string
+        -organizer: User
+        -attendees: User[]
+        -status: string
+        +createEvent()
+        +updateEvent()
+        +cancelEvent()
+        +getAttendees()
+        +sendNotifications()
+    }
+    
+    class Notification {
+        -notificationId: string
+        -userId: string
+        -eventId: string
+        -message: string
+        -timestamp: Date
+        -status: string
+        +createNotification()
+        +markAsRead()
+        +getNotificationsByUser()
+    }
+    
+    class Project {
+        -projectId: string
+        -title: string
+        -description: string
+        -owner: User
+        -contributors: User[]
+        -tags: string[]
+        -repositoryLink: string
+        +createProject()
+        +updateProject()
+        +addContributor()
+        +removeContributor()
+    }
+    
+    class CodeSnippet {
+        -snippetId: string
+        -title: string
+        -code: string
+        -language: string
+        -author: User
+        -description: string
+        +createSnippet()
+        +updateSnippet()
+        +shareSnippet()
+    }
+    
+    class ForumTopic {
+        -topicId: string
+        -title: string
+        -description: string
+        -creator: User
+        -posts: ForumPost[]
+        -tags: string[]
+        +createTopic()
+        +updateTopic()
+        +getPosts()
+        +addPost()
+    }
+    
+    class ForumPost {
+        -postId: string
+        -topicId: string
+        -content: string
+        -author: User
+        -timestamp: Date
+        -replies: ForumPost[]
+        +createPost()
+        +updatePost()
+        +addReply()
+    }
+    
+    User "1" -- "0..*" Event : organizes
+    User "0..*" -- "0..*" Event : attends
+    Event "1" -- "0..*" Notification : generates
+    User "1" -- "0..*" Notification : receives
+    User "1" -- "0..*" Project : owns
+    User "0..*" -- "0..*" Project : contributes to
+    User "1" -- "0..*" CodeSnippet : creates
+    User "1" -- "0..*" ForumTopic : creates
+    ForumTopic "1" -- "0..*" ForumPost : contains
+    User "1" -- "0..*" ForumPost : authors
